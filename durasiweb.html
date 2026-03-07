@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner - DATA DURASI WEB SEWA</title>
+    <style>
+        :root { --p-color: #ff3131; --card-bg: #161a1e; --input-bg: #0b0d0f; --text-muted: #8e959e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        
+        body { background-color: #0b0d0f; color: #fff; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        /* --- OVERLAY PIN --- */
+        #loginOverlay { position: fixed; inset: 0; background: #0b0d0f; z-index: 99999; display: flex; align-items: center; justify-content: center; }
+
+        /* --- CONTAINER UTAMA --- */
+        .wrapper { width: 100%; max-width: 500px; }
+
+        .panel-card { 
+            background: var(--card-bg); border-radius: 30px; padding: 25px; 
+            border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+            margin-bottom: 25px;
+        }
+
+        /* --- HEADER & CLOCK --- */
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+        .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
+        .clock-box { text-align: right; }
+        #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
+        #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- FORM INPUT --- */
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; margin-left: 5px; letter-spacing: 1.5px; }
+        input, select { 
+            width: 100%; background: var(--input-bg); border: 2px solid #1e2227; 
+            padding: 14px; color: #fff; border-radius: 16px; outline: none; 
+            font-size: 13px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input:focus { border-color: var(--p-color); background: #0e1013; }
+
+        .btn-main { 
+            width: 100%; background: var(--p-color); color: #fff; border: none; 
+            padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
+            box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2);
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(255, 49, 49, 0.3); }
+
+        /* --- LIST LICENSE --- */
+        .list-section-title { font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 15px 10px; }
+        .lic-card { 
+            background: var(--card-bg); border-radius: 24px; padding: 20px; 
+            border: 1px solid rgba(255,255,255,0.03); margin-bottom: 15px; 
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .lic-card:hover { transform: scale(1.02); background: #1a1f24; }
+        
+        .lic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lic-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
+        .badge-active { background: rgba(0, 255, 128, 0.1); color: #00ff80; }
+        .badge-expired { background: rgba(255, 49, 49, 0.1); color: #ff3131; }
+
+        .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
+        .lic-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+        .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; transition: 0.2s; text-transform: uppercase; }
+        .btn-edit { background: #242a32; color: #fff; }
+        .btn-del { background: rgba(255, 49, 49, 0.05); color: #ff3131; }
+        .btn-toggle { background: #fff; color: #000; }
+        .btn-toggle.active-btn { background: #00ff80; color: #000; }
+
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
+        #toast.show { top: 30px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div class="panel-card" style="max-width: 320px; text-align: center;">
+            <h2 style="margin-bottom: 20px;">OWNER LOGIN</h2>
+            <input type="password" id="passPin" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 8px;">
+            <button class="btn-main" onclick="verifyPin()" style="margin-top: 15px;">AUTHENTICATE</button>
+        </div>
+    </div>
+
+    <div id="toast">SYSTEM UPDATED! 🚀</div>
+
+    <div class="wrapper" id="mainContent" style="display: none;">
+        <div class="panel-card">
+            <div class="header">
+                <div>
+                    <div id="liveDate">March 07</div>
+                    <h2 id="formTitle">NEW LICENSE</h2>
+                </div>
+                <div class="clock-box">
+                    <div id="liveClock">00:00</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="editId">
+
+            <div class="form-group">
+                <label>Member Name</label>
+                <input type="text" id="nameInput" placeholder="e.g. Namastore Client">
+            </div>
+
+            <div class="form-group">
+                <label>Manual API Key</label>
+                <input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1">
+            </div>
+
+            <div class="form-group">
+                <label>Expiration Date & Time</label>
+                <input type="datetime-local" id="dateInput">
+            </div>
+
+            <button class="btn-main" id="saveBtn" onclick="saveData()">SAVE CONFIGURATION</button>
+            <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin-top:15px; cursor:pointer;">DISCARD CHANGES</button>
+        </div>
+
+        <div class="list-section-title">Active Licenses</div>
+        <div id="licenseList">
+            </div>
+    </div>
+
+    <script>
+        const PIN = "1234"; 
+        const FB_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses";
+
+        function verifyPin() {
+            if(document.getElementById('passPin').value === PIN) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                fetchData();
+            } else { alert("ACCESS DENIED!"); }
+        }
+
+        async function saveData() {
+            const name = document.getElementById('nameInput').value;
+            const key = document.getElementById('apiInput').value;
+            const date = document.getElementById('dateInput').value;
+            const editId = document.getElementById('editId').value;
+
+            if(!name || !key || !date) return;
+
+            const targetId = editId ? editId : key;
+            await fetch(`${FB_URL}/${targetId}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
+            });
+
+            showToast("DATA SAVED!");
+            resetForm();
+            fetchData();
+        }
+
+        async function fetchData() {
+            const res = await fetch(`${FB_URL}.json`);
+            const data = await res.json();
+            const container = document.getElementById('licenseList');
+            container.innerHTML = "";
+
+            if(data) {
+                Object.keys(data).forEach(id => {
+                    const item = data[id];
+                    const isExp = new Date() > new Date(item.expiry_date);
+                    const statusText = isExp ? "EXPIRED" : (item.status === 'active' ? "ACTIVE" : "LOCKED");
+                    const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
+
+                    container.innerHTML += `
+                        <div class="lic-card">
+                            <div class="lic-header">
+                                <div class="lic-name">${item.nama}</div>
+                                <div class="badge ${statusClass}">${statusText}</div>
+                            </div>
+                            <code class="lic-key-row">> ${item.api_key}</code>
+                            <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
+                            
+                            <div class="action-grid">
+                                <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
+                                <button class="btn-act btn-del" onclick="deleteItem('${id}')">Delete</button>
+                                <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
+                                    ${item.status === 'active' ? 'ON' : 'OFF'}
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
+
+        async function toggleStatus(id, current) {
+            const next = current === 'active' ? 'expired' : 'active';
+            await fetch(`${FB_URL}/${id}/status.json`, { method: 'PUT', body: JSON.stringify(next) });
+            fetchData();
+        }
+
+        async function prepareEdit(id) {
+            const res = await fetch(`${FB_URL}/${id}.json`);
+            const data = await res.json();
+            document.getElementById('editId').value = id;
+            document.getElementById('nameInput').value = data.nama;
+            document.getElementById('apiInput').value = data.api_key;
+            document.getElementById('dateInput').value = data.expiry_date;
+            document.getElementById('formTitle').innerText = "EDIT MODE";
+            document.getElementById('saveBtn').innerText = "CONFIRM UPDATE";
+            document.getElementById('cancelBtn').style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteItem(id) {
+            if(confirm("Permanently delete?")) {
+                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
+                fetchData();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = "";
+            document.getElementById('nameInput').value = "";
+            document.getElementById('apiInput').value = "";
+            document.getElementById('dateInput').value = "";
+            document.getElementById('formTitle').innerText = "NEW LICENSE";
+            document.getElementById('saveBtn').innerText = "SAVE CONFIGURATION";
+            document.getElementById('cancelBtn').style.display = "none";
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function clock() {
+            const now = new Date();
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('en-US', {month:'long', day:'numeric'});
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        }
+        setInterval(clock, 1000); clock();
+    </script>
+</body>
+</html>
