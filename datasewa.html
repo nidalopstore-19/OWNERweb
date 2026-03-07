@@ -8,16 +8,7 @@
         :root { --p-color: #ff3131; --card-bg: rgba(22, 26, 30, 0.9); --input-bg: #0b0d0f; --text-muted: #8e959e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
-        body { 
-            background-color: #0b0d0f; 
-            color: #fff; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            overflow: hidden;
-            background-image: radial-gradient(circle at top right, rgba(255, 49, 49, 0.05), transparent 300px);
-        }
+        body { background-color: #0b0d0f; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
 
         /* --- OVERLAY PIN --- */
         #loginOverlay { position: fixed; inset: 0; background: #0b0d0f; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
@@ -28,67 +19,42 @@
             75% { transform: translateX(10px); }
         }
 
-        /* --- NEW NAVIGATION STYLE (FIXED) --- */
+        /* --- MENU NAVIGASI (FIXED) --- */
         .menu-btn { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            z-index: 1000; 
-            background: var(--card-bg); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 12px; 
-            color: var(--p-color); 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            position: fixed; top: 20px; right: 20px; z-index: 1000; 
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); 
+            width: 45px; height: 45px; border-radius: 12px; color: var(--p-color); 
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
         
         .nav-menu { 
-            position: fixed; 
-            top: 75px; /* Menyesuaikan agar tidak menabrak tombol hamburger */
-            right: -280px; 
-            width: 240px; 
-            background: var(--card-bg); 
-            z-index: 1001; 
-            padding: 20px; 
-            border-radius: 25px;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border: 1px solid rgba(255,255,255,0.08); 
-            backdrop-filter: blur(20px);
+            position: fixed; top: 75px; right: -280px; width: 240px; 
+            background: var(--card-bg); z-index: 1001; padding: 20px; 
+            border-radius: 25px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px);
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
         .nav-menu.active { right: 20px; }
         
         .nav-menu a { 
-            display: flex; 
-            align-items: center;
-            gap: 12px;
-            color: #fff; 
-            text-decoration: none; 
-            padding: 14px; 
-            font-size: 13px; 
-            font-weight: 700; 
-            border-radius: 15px; 
-            transition: 0.2s; 
-            margin-bottom: 5px; 
+            display: flex; align-items: center; gap: 12px; color: #fff; 
+            text-decoration: none; padding: 14px; font-size: 13px; font-weight: 700; 
+            border-radius: 15px; transition: 0.2s; margin-bottom: 5px; 
         }
         .nav-menu a:hover { background: rgba(255,255,255,0.05); color: var(--p-color); }
         .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 10px 0; }
 
-        /* --- UI COMPONENTS --- */
+        /* --- CONTAINER UTAMA --- */
         .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
-        .top-section { flex-shrink: 0; padding-top: 10px; }
-        .panel-card { background: var(--card-bg); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 25px; backdrop-filter: blur(10px); }
+        .top-section { flex-shrink: 0; }
+        .panel-card { background: var(--card-bg); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 25px; }
 
-        .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 80px; scrollbar-width: none; }
+        /* SCROLLABLE LIST */
+        .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
 
-        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 50px; /* Ruang untuk hamburger */ }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 50px; }
         .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
         #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
         #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
@@ -101,18 +67,31 @@
         .btn-main { width: 100%; background: var(--p-color); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
 
         .lic-card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 15px; }
+        .lic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lic-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
+        .badge-active { background: rgba(0, 255, 128, 0.1); color: #00ff80; }
+        
+        .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
+        .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .btn-edit { background: #242a32; color: #fff; }
+        .btn-del { background: rgba(255, 49, 49, 0.05); color: #ff3131; }
+        .btn-toggle { background: #fff; color: #000; }
+        .btn-toggle.active-btn { background: #00ff80; color: #000; }
+
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; }
         #toast.show { top: 30px; }
     </style>
 </head>
 <body>
 
-    <button class="menu-btn" onclick="toggleMenu()" id="btn-toggle-ui">
+    <button class="menu-btn" onclick="toggleMenu()">
         <span id="icon-menu">☰</span>
     </button>
 
     <div class="nav-menu" id="sideMenu">
-        <a href="index.html">👑Owner Panel</a>
+        <a href="index.html">👑 Owner Panel</a>
         <a href="database.html">📊 Database Viewer</a>
         <a href="datasewa.html">👾 Data sewa web</a>
         <a href="keuntungan.html">💰 Keuntungan</a>
@@ -125,7 +104,7 @@
 
     <div id="loginOverlay">
         <div id="loginCard" class="panel-card" style="max-width: 320px; text-align: center;">
-            <h2 style="margin-bottom: 20px; color: var(--p-color);">OWNER LOGIN</h2>
+            <h2 style="margin-bottom: 20px;">OWNER LOGIN</h2>
             <input type="password" id="passPin" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 8px;">
             <button class="btn-main" onclick="verifyPin()" style="margin-top: 15px;">AUTHENTICATE</button>
         </div>
@@ -144,45 +123,26 @@
                     <div><div id="liveClock">00:00</div></div>
                 </div>
                 <input type="hidden" id="editId">
-                <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="Nama Client"></div>
-                <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="KEY-XXXX"></div>
+                <div class="form-group"><label>Member Name</label><input type="text" id="nameInput"></div>
+                <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput"></div>
                 <div class="form-group"><label>Expiration Date</label><input type="datetime-local" id="dateInput"></div>
                 <button class="btn-main" onclick="saveData()">SAVE CONFIGURATION</button>
             </div>
-            <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px; letter-spacing: 1px;">ACTIVE LICENSES</div>
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px;">ACTIVE LICENSES</div>
         </div>
 
         <div class="scroll-section" id="licenseList"></div>
     </div>
 
     <script>
-        const PIN = "1234"; // Sesuaikan PIN kamu
-        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; //
+        const PIN = "1234"; 
+        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses";
 
         function toggleMenu() { 
             const menu = document.getElementById('sideMenu');
             const icon = document.getElementById('icon-menu');
             menu.classList.toggle('active');
-            
-            // Mengubah icon menjadi X saat menu terbuka
-            if(menu.classList.contains('active')) {
-                icon.innerText = "✕";
-                icon.style.fontSize = "24px";
-            } else {
-                icon.innerText = "☰";
-                icon.style.fontSize = "20px";
-            }
-        }
-
-        // Tutup menu jika klik di luar
-        window.onclick = function(event) {
-            if (!event.target.matches('.menu-btn') && !event.target.matches('#icon-menu')) {
-                const menu = document.getElementById('sideMenu');
-                if (menu.classList.contains('active')) {
-                    menu.classList.remove('active');
-                    document.getElementById('icon-menu').innerText = "☰";
-                }
-            }
+            icon.innerText = menu.classList.contains('active') ? "✕" : "☰";
         }
 
         function verifyPin() {
@@ -222,11 +182,16 @@
                     const item = data[id];
                     container.innerHTML += `
                         <div class="lic-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <div style="font-weight:800;">${item.nama}</div>
-                                <div style="font-size:9px; color:#00ff80; background:rgba(0,255,128,0.1); padding:4px 8px; border-radius:8px;">ACTIVE</div>
+                            <div class="lic-header">
+                                <div class="lic-name">${item.nama}</div>
+                                <div class="badge badge-active">ACTIVE</div>
                             </div>
-                            <code style="color:var(--p-color); font-size:11px;">> ${item.api_key}</code>
+                            <code class="lic-key-row">> ${item.api_key}</code>
+                            <div class="action-grid">
+                                <button class="btn-act btn-edit">Edit</button>
+                                <button class="btn-act btn-del">Delete</button>
+                                <button class="btn-act btn-toggle active-btn">ON</button>
+                            </div>
                         </div>`;
                 });
             }
