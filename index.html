@@ -7,7 +7,8 @@
     
     <script>
         async function syncAdminTheme() {
-            const DB_URL = "https://ownernidalop-default-rtdb.asia-southeast1.firebasedatabase.app/owner_config.json";
+            // URL DATABASE BARU (ownernidalop)
+            const DB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/owner_config.json";
             try {
                 const res = await fetch(DB_URL);
                 const config = await res.json();
@@ -17,14 +18,12 @@
                     const bg = config.bg;
                     const storeName = config.storeName || "NAMASTORE";
 
-                    // GANTI SEMUA TEKS NIDALOPSTORE MENJADI NAMA STORE DATABASE
                     document.title = `Akses Admin — ${storeName}`;
                     const loginTitle = document.getElementById('login-title-text');
                     if(loginTitle) loginTitle.innerText = `${storeName} LOGIN`;
                     const headerTitle = document.getElementById('header-title-text');
                     if(headerTitle) headerTitle.innerText = `${storeName} ADMIN`;
 
-                    // Transisi Loader Visuals
                     const ball = document.querySelector('.orbit-ball');
                     const text = document.getElementById('loaderTextDisplay');
                     if(ball) { 
@@ -227,6 +226,7 @@
 </div>
 
 <script>
+    // URL BASE DATABASE BARU
     const BASE_URL = "https://ownernidalop-default-rtdb.firebaseio.com/";
 
     function hideLoader() {
@@ -245,7 +245,7 @@
             if (u === db.username && p === db.password && parseInt(pin) === db.pin) {
                 localStorage.setItem('tama_admin_session', 'active');
                 document.getElementById('loginSection').style.display = 'none';
-                loadList(false); // Ambil data saat login (False = Pakai Loading)
+                loadList(false);
             } else { err.style.display = 'block'; }
         } catch (e) { alert("Gagal koneksi database!"); }
     }
@@ -253,7 +253,6 @@
     async function loadList(isSilent = true) {
         if (localStorage.getItem('tama_admin_session') !== 'active') { hideLoader(); return; }
         
-        // Munculkan loader hanya jika buka pertama atau login
         if(!isSilent) document.getElementById('preloader').classList.remove('hide');
         const safety = setTimeout(hideLoader, 4500);
 
@@ -288,10 +287,8 @@
                 });
             }
             
-            // Render HTML dulu
             container.innerHTML = htmlContent;
 
-            // Jika ini load pertama, baru tutup loading
             if(!isSilent) {
                 clearTimeout(safety);
                 setTimeout(hideLoader, 1000);
@@ -313,7 +310,7 @@
         if(fotoData) data.logo = fotoData;
         await fetch(`${BASE_URL}produk/${id}.json`, { method: 'PATCH', body: JSON.stringify(data) });
         showToast("Berhasil Terupdate! ✨"); closeForm(); 
-        loadList(true); // Silent update
+        loadList(true);
     }
 
     async function tambahStok() {
@@ -323,10 +320,9 @@
         const lines = dataRaw.split('\n');
         for(let line of lines) { if(line.trim()) await fetch(`${BASE_URL}stok_akun/${id}.json`, { method: 'POST', body: JSON.stringify(line.trim()) }); }
         showToast("Stok Masuk! 🚀"); document.getElementById('accData').value = ""; 
-        loadList(true); // Silent update
+        loadList(true);
     }
 
-    // Modal Helpers
     function openForm() { resetForm(); document.getElementById('formModal').style.display = 'flex'; }
     function closeForm() { document.getElementById('formModal').style.display = 'none'; }
     function closeConfirm() { document.getElementById('confirmModal').style.display = 'none'; targetDeleteId = null; }
@@ -359,7 +355,7 @@
 
     if (localStorage.getItem('tama_admin_session') === 'active') { 
         document.getElementById('loginSection').style.display = 'none'; 
-        loadList(false); // First load
+        loadList(false);
     } else { hideLoader(); }
 </script>
 </body>
