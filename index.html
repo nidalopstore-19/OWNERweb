@@ -7,7 +7,7 @@
     
     <script>
         async function syncAdminTheme() {
-            const DB_URL = "https://console.firebase.google.com/u/2/project/ownernidalop/database/ownernidalop-default-rtdb/data/~2F";
+            const DB_URL = "https://ownernidalop-default-rtdb.asia-southeast1.firebasedatabase.app/owner_config.json";
             try {
                 const res = await fetch(DB_URL);
                 const config = await res.json();
@@ -227,7 +227,7 @@
 </div>
 
 <script>
-    const BASE_URL = "https://console.firebase.google.com/u/2/project/ownernidalop/database/ownernidalop-default-rtdb/data/~2F";
+    const BASE_URL = "https://ownernidalop-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     function hideLoader() {
         const loader = document.getElementById('preloader');
