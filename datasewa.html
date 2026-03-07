@@ -50,7 +50,7 @@
         .expand-content { padding: 0 25px 25px 25px; opacity: 0; transition: 0.3s; pointer-events: none; }
         .expand-card.open .expand-content { opacity: 1; pointer-events: all; }
 
-        .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; scrollbar-width: none; }
+        .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; scrollbar-width: none; -ms-overflow-style: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
 
         .form-group { margin-bottom: 15px; }
@@ -168,24 +168,34 @@
             const date = document.getElementById('dateInput').value;
             const editId = document.getElementById('editId').value;
             if(!name || !key || !date) return;
+
             const targetId = editId ? editId : key;
+            
+            // Fix: Paksa refresh data setelah PUT dengan memanggil fetchData
             await fetch(`${FB_URL}/${targetId}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
             });
+
             showToast("DATA SAVED!");
             resetForm();
             if(document.getElementById('formPanel').classList.contains('open')) toggleForm();
+            
+            // REFRESH DATA OTOMATIS
             fetchData();
         }
 
         async function fetchData() {
-            const res = await fetch(`${FB_URL}.json`);
+            // Fix: Tambahkan timestamp agar browser tidak mengambil cache lama
+            const res = await fetch(`${FB_URL}.json?nocache=${new Date().getTime()}`);
             const data = await res.json();
             const container = document.getElementById('licenseList');
             container.innerHTML = "";
+            
             if(data) {
-                Object.keys(data).forEach(id => {
+                // Reverse agar data terbaru selalu di atas dan tidak tenggelam
+                const sortedKeys = Object.keys(data).reverse();
+                sortedKeys.forEach(id => {
                     const item = data[id];
                     const isExp = new Date() > new Date(item.expiry_date);
                     const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
@@ -193,7 +203,7 @@
                         <div class="lic-card">
                             <div class="lic-header">
                                 <div class="lic-name">${item.nama}</div>
-                                <div class="badge ${statusClass}">${item.status === 'active' ? 'ACTIVE' : 'OFF'}</div>
+                                <div class="badge ${statusClass}">${(item.status === 'active' && !isExp) ? 'ACTIVE' : 'OFF/EXP'}</div>
                             </div>
                             <code class="lic-key-row">> ${item.api_key}</code>
                             <div class="action-grid">
@@ -208,7 +218,6 @@
             }
         }
 
-        // FUNGSI DELETE MEWAH
         function askDelete(id) {
             deleteTargetId = id;
             document.getElementById('luxuryConfirm').classList.add('show');
@@ -225,13 +234,13 @@
         async function executeDelete(id) {
             await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
             showToast("MEMBER DELETED! 💀");
-            fetchData();
+            fetchData(); // Refresh list setelah hapus
         }
 
         async function toggleStatus(id, current) {
             const next = current === 'active' ? 'expired' : 'active';
             await fetch(`${FB_URL}/${id}/status.json`, { method: 'PUT', body: JSON.stringify(next) });
-            fetchData();
+            fetchData(); // Refresh list setelah toggle
         }
 
         async function prepareEdit(id) {
@@ -243,6 +252,9 @@
             document.getElementById('dateInput').value = data.expiry_date;
             document.getElementById('formTitle').innerText = "EDIT MODE";
             if(!document.getElementById('formPanel').classList.contains('open')) toggleForm();
+            
+            // Scroll ke atas otomatis agar user sadar sedang mode edit
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function resetForm() {
@@ -258,6 +270,9 @@
             t.innerText = msg; t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
         }
+
+        // Jalankan fetch pertama kali
+        fetchData();
     </script>
 </body>
 </html>
