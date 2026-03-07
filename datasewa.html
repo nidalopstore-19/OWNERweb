@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Panel PRO — Multi-License</title>
     <style>
-        :root { --p-color: #ff3131; --card-bg: #161a1e; --input-bg: #0b0d0f; --text-muted: #8e959e; }
+        :root { --p-color: #ff3131; --card-bg: rgba(22, 26, 30, 0.9); --input-bg: #0b0d0f; --text-muted: #8e959e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
-        body { background-color: #0b0d0f; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        body { 
+            background-color: #0b0d0f; 
+            color: #fff; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(255, 49, 49, 0.05), transparent 300px);
+        }
 
         /* --- OVERLAY PIN --- */
         #loginOverlay { position: fixed; inset: 0; background: #0b0d0f; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
@@ -19,78 +28,103 @@
             75% { transform: translateX(10px); }
         }
 
-        /* --- CONTAINER UTAMA --- */
-        .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
-
-        /* FORM TETAP (TIDAK BISA DI SCROLL) */
-        .top-section { flex-shrink: 0; }
-        
-        .panel-card { 
-            background: var(--card-bg); border-radius: 30px; padding: 25px; 
-            border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
-            margin-bottom: 25px;
+        /* --- NEW NAVIGATION STYLE (FIXED) --- */
+        .menu-btn { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; 
+            color: var(--p-color); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
+        
+        .nav-menu { 
+            position: fixed; 
+            top: 75px; /* Menyesuaikan agar tidak menabrak tombol hamburger */
+            right: -280px; 
+            width: 240px; 
+            background: var(--card-bg); 
+            z-index: 1001; 
+            padding: 20px; 
+            border-radius: 25px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .nav-menu.active { right: 20px; }
+        
+        .nav-menu a { 
+            display: flex; 
+            align-items: center;
+            gap: 12px;
+            color: #fff; 
+            text-decoration: none; 
+            padding: 14px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            border-radius: 15px; 
+            transition: 0.2s; 
+            margin-bottom: 5px; 
+        }
+        .nav-menu a:hover { background: rgba(255,255,255,0.05); color: var(--p-color); }
+        .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 10px 0; }
 
-        /* DAFTAR DATA (BISA DI SCROLL) */
-        .scroll-section { flex-grow: 1; overflow-y: auto; padding-right: 5px; scrollbar-width: none; }
+        /* --- UI COMPONENTS --- */
+        .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
+        .top-section { flex-shrink: 0; padding-top: 10px; }
+        .panel-card { background: var(--card-bg); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 25px; backdrop-filter: blur(10px); }
+
+        .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 80px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
 
-        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 50px; /* Ruang untuk hamburger */ }
         .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
-        .clock-box { text-align: right; }
         #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
         #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
 
         .form-group { margin-bottom: 18px; }
         label { display: block; font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; margin-left: 5px; letter-spacing: 1.5px; }
-        input, select { 
-            width: 100%; background: var(--input-bg); border: 2px solid #1e2227; 
-            padding: 14px; color: #fff; border-radius: 16px; outline: none; 
-            font-size: 13px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        input:focus { border-color: var(--p-color); background: #0e1013; }
+        input { width: 100%; background: var(--input-bg); border: 2px solid #1e2227; padding: 14px; color: #fff; border-radius: 16px; outline: none; font-size: 13px; }
+        input:focus { border-color: var(--p-color); }
 
-        .btn-main { 
-            width: 100%; background: var(--p-color); color: #fff; border: none; 
-            padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; 
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
-            box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2);
-        }
-        .btn-main:hover { transform: translateY(-2px); }
+        .btn-main { width: 100%; background: var(--p-color); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
 
-        .list-section-title { font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 15px 10px; }
-        .lic-card { 
-            background: var(--card-bg); border-radius: 24px; padding: 20px; 
-            border: 1px solid rgba(255,255,255,0.03); margin-bottom: 15px; 
-            transition: 0.3s; position: relative;
-        }
-        .lic-card:hover { transform: scale(1.01); background: #1a1f24; }
-        
-        .lic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .lic-name { font-size: 14px; font-weight: 800; color: #fff; }
-        .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
-        .badge-active { background: rgba(0, 255, 128, 0.1); color: #00ff80; }
-        .badge-expired { background: rgba(255, 49, 49, 0.1); color: #ff3131; }
-
-        .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
-        .lic-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
-
-        .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; transition: 0.2s; text-transform: uppercase; }
-        .btn-edit { background: #242a32; color: #fff; }
-        .btn-del { background: rgba(255, 49, 49, 0.05); color: #ff3131; }
-        .btn-toggle { background: #fff; color: #000; }
-        .btn-toggle.active-btn { background: #00ff80; color: #000; }
-
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
+        .lic-card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 15px; }
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; }
         #toast.show { top: 30px; }
     </style>
 </head>
 <body>
 
+    <button class="menu-btn" onclick="toggleMenu()" id="btn-toggle-ui">
+        <span id="icon-menu">☰</span>
+    </button>
+
+    <div class="nav-menu" id="sideMenu">
+        <a href="database.html">📊 Database Viewer</a>
+        <a href="datasewa.html">👾 Data sewa web</a>
+        <a href="keuntungan.html">💰 Keuntungan</a>
+        <a href="admin_settings.html">🎨 Customizer</a>
+        <a href="#" onclick="alert('Buka modal keamanan...')">🛡️ Keamanan</a>
+        <hr class="nav-divider">
+        <a href="#" onclick="localStorage.clear(); location.reload();" style="color: #ff3131;">🚪 Logout</a>
+        <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
+    </div>
+
     <div id="loginOverlay">
         <div id="loginCard" class="panel-card" style="max-width: 320px; text-align: center;">
-            <h2 style="margin-bottom: 20px;">OWNER LOGIN</h2>
+            <h2 style="margin-bottom: 20px; color: var(--p-color);">OWNER LOGIN</h2>
             <input type="password" id="passPin" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 8px;">
             <button class="btn-main" onclick="verifyPin()" style="margin-top: 15px;">AUTHENTICATE</button>
         </div>
@@ -106,56 +140,58 @@
                         <div id="liveDate">March 07</div>
                         <h2 id="formTitle">NEW LICENSE</h2>
                     </div>
-                    <div class="clock-box">
-                        <div id="liveClock">00:00</div>
-                    </div>
+                    <div><div id="liveClock">00:00</div></div>
                 </div>
-
                 <input type="hidden" id="editId">
-
-                <div class="form-group">
-                    <label>Member Name</label>
-                    <input type="text" id="nameInput" placeholder="e.g. Namastore Client">
-                </div>
-
-                <div class="form-group">
-                    <label>Manual API Key</label>
-                    <input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1">
-                </div>
-
-                <div class="form-group">
-                    <label>Expiration Date & Time</label>
-                    <input type="datetime-local" id="dateInput">
-                </div>
-
-                <button class="btn-main" id="saveBtn" onclick="saveData()">SAVE CONFIGURATION</button>
-                <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin-top:15px; cursor:pointer;">DISCARD CHANGES</button>
+                <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="Nama Client"></div>
+                <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="KEY-XXXX"></div>
+                <div class="form-group"><label>Expiration Date</label><input type="datetime-local" id="dateInput"></div>
+                <button class="btn-main" onclick="saveData()">SAVE CONFIGURATION</button>
             </div>
-            <div class="list-section-title">Active Licenses</div>
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px; letter-spacing: 1px;">ACTIVE LICENSES</div>
         </div>
 
-        <div class="scroll-section" id="licenseList">
-            </div>
+        <div class="scroll-section" id="licenseList"></div>
     </div>
 
     <script>
-        const PIN = "3945123"; 
-        // URL DATABASE BARU (ownernidalop)
-        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses";
+        const PIN = "1234"; // Sesuaikan PIN kamu
+        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; //
+
+        function toggleMenu() { 
+            const menu = document.getElementById('sideMenu');
+            const icon = document.getElementById('icon-menu');
+            menu.classList.toggle('active');
+            
+            // Mengubah icon menjadi X saat menu terbuka
+            if(menu.classList.contains('active')) {
+                icon.innerText = "✕";
+                icon.style.fontSize = "24px";
+            } else {
+                icon.innerText = "☰";
+                icon.style.fontSize = "20px";
+            }
+        }
+
+        // Tutup menu jika klik di luar
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-btn') && !event.target.matches('#icon-menu')) {
+                const menu = document.getElementById('sideMenu');
+                if (menu.classList.contains('active')) {
+                    menu.classList.remove('active');
+                    document.getElementById('icon-menu').innerText = "☰";
+                }
+            }
+        }
 
         function verifyPin() {
             const input = document.getElementById('passPin');
             const card = document.getElementById('loginCard');
-            
             if(input.value === PIN) {
-                document.getElementById('loginOverlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'flex';
-                    fetchData();
-                }, 300);
-            } else { 
-                // ANIMASI GAGAL LOGIN
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                fetchData();
+            } else {
                 card.classList.add('shake');
                 input.value = "";
                 setTimeout(() => card.classList.remove('shake'), 400);
@@ -166,18 +202,12 @@
             const name = document.getElementById('nameInput').value;
             const key = document.getElementById('apiInput').value;
             const date = document.getElementById('dateInput').value;
-            const editId = document.getElementById('editId').value;
-
             if(!name || !key || !date) return;
-
-            const targetId = editId ? editId : key;
-            await fetch(`${FB_URL}/${targetId}.json`, {
+            await fetch(`${FB_URL}/${key}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
             });
-
             showToast("DATA SAVED!");
-            resetForm();
             fetchData();
         }
 
@@ -186,68 +216,19 @@
             const data = await res.json();
             const container = document.getElementById('licenseList');
             container.innerHTML = "";
-
             if(data) {
                 Object.keys(data).forEach(id => {
                     const item = data[id];
-                    const isExp = new Date() > new Date(item.expiry_date);
-                    const statusText = isExp ? "EXPIRED" : (item.status === 'active' ? "ACTIVE" : "LOCKED");
-                    const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
-
                     container.innerHTML += `
                         <div class="lic-card">
-                            <div class="lic-header">
-                                <div class="lic-name">${item.nama}</div>
-                                <div class="badge ${statusClass}">${statusText}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <div style="font-weight:800;">${item.nama}</div>
+                                <div style="font-size:9px; color:#00ff80; background:rgba(0,255,128,0.1); padding:4px 8px; border-radius:8px;">ACTIVE</div>
                             </div>
-                            <code class="lic-key-row">> ${item.api_key}</code>
-                            <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
-                            
-                            <div class="action-grid">
-                                <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
-                                <button class="btn-act btn-del" onclick="deleteItem('${id}')">Delete</button>
-                                <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
-                                    ${item.status === 'active' ? 'ON' : 'OFF'}
-                                </button>
-                            </div>
+                            <code style="color:var(--p-color); font-size:11px;">> ${item.api_key}</code>
                         </div>`;
                 });
             }
-        }
-
-        async function toggleStatus(id, current) {
-            const next = current === 'active' ? 'expired' : 'active';
-            await fetch(`${FB_URL}/${id}/status.json`, { method: 'PUT', body: JSON.stringify(next) });
-            fetchData();
-        }
-
-        async function prepareEdit(id) {
-            const res = await fetch(`${FB_URL}/${id}.json`);
-            const data = await res.json();
-            document.getElementById('editId').value = id;
-            document.getElementById('nameInput').value = data.nama;
-            document.getElementById('apiInput').value = data.api_key;
-            document.getElementById('dateInput').value = data.expiry_date;
-            document.getElementById('formTitle').innerText = "EDIT MODE";
-            document.getElementById('saveBtn').innerText = "CONFIRM UPDATE";
-            document.getElementById('cancelBtn').style.display = "block";
-        }
-
-        async function deleteItem(id) {
-            if(confirm("Permanently delete?")) {
-                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
-                fetchData();
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('editId').value = "";
-            document.getElementById('nameInput').value = "";
-            document.getElementById('apiInput').value = "";
-            document.getElementById('dateInput').value = "";
-            document.getElementById('formTitle').innerText = "NEW LICENSE";
-            document.getElementById('saveBtn').innerText = "SAVE CONFIGURATION";
-            document.getElementById('cancelBtn').style.display = "none";
         }
 
         function showToast(msg) {
@@ -256,12 +237,10 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        function clock() {
+        setInterval(() => {
             const now = new Date();
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('en-US', {month:'long', day:'numeric'});
             document.getElementById('liveClock').innerText = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-        }
-        setInterval(clock, 1000); clock();
+        }, 1000);
     </script>
 </body>
 </html>
