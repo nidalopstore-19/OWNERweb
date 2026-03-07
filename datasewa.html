@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Panel PRO — Multi-License</title>
     <style>
-        :root { --p-color: #ff3131; --card-bg: rgba(22, 26, 30, 0.9); --input-bg: #0b0d0f; --text-muted: #8e959e; }
+        :root { --p-color: #ff3131; --card-bg: rgba(22, 26, 30, 0.95); --input-bg: #0b0d0f; --text-muted: #8e959e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
         body { background-color: #0b0d0f; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
@@ -19,42 +19,71 @@
             75% { transform: translateX(10px); }
         }
 
-        /* --- MENU NAVIGASI (FIXED) --- */
+        /* --- MENU NAVIGASI (DIPERBAIKI: POSISI & UKURAN) --- */
         .menu-btn { 
-            position: fixed; top: 20px; right: 20px; z-index: 1000; 
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); 
-            width: 45px; height: 45px; border-radius: 12px; color: var(--p-color); 
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            position: fixed; 
+            top: 20px; /* Jarak dari atas layar */
+            right: 20px; 
+            z-index: 1000; 
+            background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; 
+            color: var(--p-color); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transition: 0.3s;
         }
         
         .nav-menu { 
-            position: fixed; top: 75px; right: -280px; width: 240px; 
-            background: var(--card-bg); z-index: 1001; padding: 20px; 
-            border-radius: 25px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+            position: fixed; 
+            top: 80px; /* INI DIUBAH: Menurunkan posisi menu agar tidak terlalu ke atas */
+            right: -280px; 
+            width: 230px; /* INI DIUBAH: Sedikit lebih ramping */
+            background: var(--card-bg); 
+            z-index: 1001; 
+            padding: 15px; /* INI DIUBAH: Padding lebih rapat agar tidak oversize */
+            border-radius: 20px; /* INI DIUBAH: Radius sedikit disesuaikan */
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            backdrop-filter: blur(20px);
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            visibility: hidden; /* Mencegah klik ghosting saat tertutup */
+            opacity: 0;
         }
-        .nav-menu.active { right: 20px; }
+        .nav-menu.active { right: 20px; visibility: visible; opacity: 1; }
         
         .nav-menu a { 
-            display: flex; align-items: center; gap: 12px; color: #fff; 
-            text-decoration: none; padding: 14px; font-size: 13px; font-weight: 700; 
-            border-radius: 15px; transition: 0.2s; margin-bottom: 5px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: #fff; 
+            text-decoration: none; 
+            padding: 12px; /* INI DIUBAH: Lebih rapat */
+            font-size: 12px; /* INI DIUBAH: Sedikit lebih kecil agar rapi */
+            font-weight: 700; 
+            border-radius: 12px; 
+            transition: 0.2s; 
+            margin-bottom: 3px; 
         }
         .nav-menu a:hover { background: rgba(255,255,255,0.05); color: var(--p-color); }
-        .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 10px 0; }
+        .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 8px 0; }
 
         /* --- CONTAINER UTAMA --- */
         .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
         .top-section { flex-shrink: 0; }
-        .panel-card { background: var(--card-bg); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 25px; }
+        .panel-card { background: var(--card-bg); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-bottom: 25px; backdrop-filter: blur(10px); }
 
         /* SCROLLABLE LIST */
         .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
 
-        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 50px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 55px; /* Ruang agar tidak tabrakan dengan hamburger */ }
         .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
         #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
         #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
@@ -86,7 +115,7 @@
 </head>
 <body>
 
-    <button class="menu-btn" onclick="toggleMenu()">
+    <button class="menu-btn" onclick="toggleMenu()" id="main-hamb-btn">
         <span id="icon-menu">☰</span>
     </button>
 
@@ -104,7 +133,7 @@
 
     <div id="loginOverlay">
         <div id="loginCard" class="panel-card" style="max-width: 320px; text-align: center;">
-            <h2 style="margin-bottom: 20px;">OWNER LOGIN</h2>
+            <h2 style="margin-bottom: 20px; color: var(--p-color);">OWNER LOGIN</h2>
             <input type="password" id="passPin" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 8px;">
             <button class="btn-main" onclick="verifyPin()" style="margin-top: 15px;">AUTHENTICATE</button>
         </div>
@@ -123,26 +152,51 @@
                     <div><div id="liveClock">00:00</div></div>
                 </div>
                 <input type="hidden" id="editId">
-                <div class="form-group"><label>Member Name</label><input type="text" id="nameInput"></div>
-                <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput"></div>
+                <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="Nama Client"></div>
+                <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="KEY-XXXX"></div>
                 <div class="form-group"><label>Expiration Date</label><input type="datetime-local" id="dateInput"></div>
                 <button class="btn-main" onclick="saveData()">SAVE CONFIGURATION</button>
             </div>
-            <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px;">ACTIVE LICENSES</div>
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px; letter-spacing: 1px;">ACTIVE LICENSES</div>
         </div>
 
         <div class="scroll-section" id="licenseList"></div>
     </div>
 
     <script>
-        const PIN = "1234"; 
-        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses";
+        const PIN = "3945123"; // Sesuaikan PIN kamu
+        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; 
 
         function toggleMenu() { 
             const menu = document.getElementById('sideMenu');
             const icon = document.getElementById('icon-menu');
+            const btn = document.getElementById('main-hamb-btn');
+            
             menu.classList.toggle('active');
-            icon.innerText = menu.classList.contains('active') ? "✕" : "☰";
+            
+            if(menu.classList.contains('active')) {
+                icon.innerText = "✕";
+                icon.style.fontSize = "22px";
+                btn.style.borderColor = "rgba(255,255,255,0.2)";
+            } else {
+                icon.innerText = "☰";
+                icon.style.fontSize = "20px";
+                btn.style.borderColor = "rgba(255,255,255,0.1)";
+            }
+        }
+
+        // Tutup menu jika klik di luar
+        window.onclick = function(event) {
+            const menu = document.getElementById('sideMenu');
+            const btn = document.getElementById('main-hamb-btn');
+            const icon = document.getElementById('icon-menu');
+            
+            if (!event.target.matches('.menu-btn') && !event.target.matches('#icon-menu') && menu.classList.contains('active')) {
+                menu.classList.remove('active');
+                icon.innerText = "☰";
+                icon.style.fontSize = "20px";
+                btn.style.borderColor = "rgba(255,255,255,0.1)";
+            }
         }
 
         function verifyPin() {
