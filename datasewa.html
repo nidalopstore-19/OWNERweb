@@ -23,11 +23,24 @@
         .nav-menu a:hover { background: rgba(255,49,49,0.1); color: var(--p-color); }
         .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 8px 0; }
 
+        /* --- LUXURY CONFIRM MODAL --- */
+        #luxuryConfirm { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1000000; align-items: center; justify-content: center; transition: 0.3s; }
+        .confirm-card { background: #161a1e; border: 1px solid rgba(255,255,255,0.1); width: 85%; max-width: 320px; border-radius: 30px; padding: 30px; text-align: center; transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #luxuryConfirm.show { display: flex; }
+        #luxuryConfirm.show .confirm-card { transform: scale(1); }
+        .confirm-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .confirm-card h3 { font-size: 18px; font-weight: 900; margin-bottom: 10px; color: #fff; }
+        .confirm-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .confirm-btns { display: flex; gap: 12px; }
+        .btn-c { flex: 1; padding: 14px; border-radius: 15px; border: none; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-no { background: rgba(255,255,255,0.05); color: #fff; }
+        .btn-yes { background: var(--p-color); color: #fff; box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2); }
+
         /* --- CONTAINER UTAMA --- */
         .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
         .top-section { flex-shrink: 0; margin-bottom: 15px; }
 
-        /* --- DYNAMIC FORM PANEL (RINGKAS) --- */
+        /* --- DYNAMIC FORM PANEL --- */
         .expand-card { background: var(--card-bg); border-radius: 25px; border: 1px solid rgba(255,255,255,0.03); overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); max-height: 60px; cursor: pointer; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         .expand-card.open { max-height: 500px; cursor: default; }
         .expand-header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; }
@@ -37,7 +50,6 @@
         .expand-content { padding: 0 25px 25px 25px; opacity: 0; transition: 0.3s; pointer-events: none; }
         .expand-card.open .expand-content { opacity: 1; pointer-events: all; }
 
-        /* SCROLLABLE LIST */
         .scroll-section { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
 
@@ -66,7 +78,7 @@
     </style>
 </head>
 <body>
-   <br></br>
+
     <button class="menu-btn" onclick="toggleMenu()"><span id="icon-menu">☰</span></button>
 
     <div class="nav-menu" id="sideMenu">
@@ -78,6 +90,18 @@
         <hr class="nav-divider">
         <a href="#" onclick="localStorage.clear(); location.reload();" style="color: #ff3131;">🚪 Logout</a>
         <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
+    </div>
+
+    <div id="luxuryConfirm">
+        <div class="confirm-card">
+            <span class="confirm-icon">⚠️</span>
+            <h3>Hapus Member?</h3>
+            <p>Data lisensi dan akses member ini akan dihapus secara permanen dari database.</p>
+            <div class="confirm-btns">
+                <button class="btn-c btn-no" onclick="closeLuxuryModal(false)">Batal</button>
+                <button class="btn-c btn-yes" onclick="closeLuxuryModal(true)">Ya, Hapus</button>
+            </div>
+        </div>
     </div>
 
     <div id="loginOverlay">
@@ -113,8 +137,10 @@
     </div>
 
     <script>
-        const PIN = "3945123"; // PIN Tetap
-        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; // Database Tetap
+        const PIN = "3945123"; 
+        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; 
+
+        let deleteTargetId = null;
 
         function toggleMenu() { 
             const menu = document.getElementById('sideMenu');
@@ -150,7 +176,7 @@
             });
             showToast("DATA SAVED!");
             resetForm();
-            toggleForm();
+            if(document.getElementById('formPanel').classList.contains('open')) toggleForm();
             fetchData();
         }
 
@@ -173,7 +199,7 @@
                             <code class="lic-key-row">> ${item.api_key}</code>
                             <div class="action-grid">
                                 <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
-                                <button class="btn-act btn-del" onclick="deleteItem('${id}')">Delete</button>
+                                <button class="btn-act btn-del" onclick="askDelete('${id}')">Delete</button>
                                 <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
                                     ${item.status === 'active' ? 'ON' : 'OFF'}
                                 </button>
@@ -181,6 +207,26 @@
                         </div>`;
                 });
             }
+        }
+
+        // FUNGSI DELETE MEWAH
+        function askDelete(id) {
+            deleteTargetId = id;
+            document.getElementById('luxuryConfirm').classList.add('show');
+        }
+
+        function closeLuxuryModal(confirm) {
+            document.getElementById('luxuryConfirm').classList.remove('show');
+            if(confirm && deleteTargetId) {
+                executeDelete(deleteTargetId);
+            }
+            deleteTargetId = null;
+        }
+
+        async function executeDelete(id) {
+            await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
+            showToast("MEMBER DELETED! 💀");
+            fetchData();
         }
 
         async function toggleStatus(id, current) {
@@ -198,13 +244,6 @@
             document.getElementById('dateInput').value = data.expiry_date;
             document.getElementById('formTitle').innerText = "EDIT MODE";
             if(!document.getElementById('formPanel').classList.contains('open')) toggleForm();
-        }
-
-        async function deleteItem(id) {
-            if(confirm("Permanently delete?")) {
-                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
-                fetchData();
-            }
         }
 
         function resetForm() {
