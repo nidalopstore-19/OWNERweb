@@ -87,7 +87,8 @@
 </div>
 
 <script>
-    const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    // URL DATABASE BARU (ownernidalop)
+    const BASE_URL = "https://ownernidalop-default-rtdb.firebaseio.com/";
 
     async function initFinance() {
         try {
@@ -200,9 +201,11 @@
             <input type="checkbox" id="menuToggle">
             <label for="menuToggle" class="hamburger"><span></span><span></span><span></span></label>
             <div class="nav-menu">
-                <a href="index.html">⚙️ Owner Panel</a>
+                <a href="index.html">👑 Owner Panel</a>
                 <a href="database.html">📊 Database Viewer</a>
-                <a href="admin_settings.html">🎨 Customizer</a>
+        <a href="datasewa.html">👾 Data sewa web</a>
+        <a href="admin_settings.html">🎨 Customizer</a>
+        <a onclick="openSafetyModal()">🛡️ Keamanan</a>
                 <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 5px 0;">
                 <a href="#" class="delete-btn" onclick="hapusSemuaTransaksi()">🗑️ RESET SEMUA DATA</a>
             </div>
