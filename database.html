@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Viewer — NAMASTORE</title>
+    
+    <script>
+        async function syncTampilan() {
+            // URL DATABASE BARU
+            const DB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/owner_config.json";
+            try {
+                const res = await fetch(DB_URL);
+                const config = await res.json();
+                if (config) {
+                    const primary = config.colors.primary;
+                    const card = config.colors.card;
+                    const bg = config.bg;
+                    const storeName = config.storeName || "NAMASTORE";
+
+                    document.title = `Database Viewer — ${storeName}`;
+                    document.getElementById('storeNameLabel').innerText = storeName;
+                    
+                    setTimeout(() => {
+                        const loaderLabel = document.getElementById('loaderTextDisplay');
+                        if(loaderLabel) loaderLabel.innerText = storeName;
+                    }, 500);
+
+                    const style = document.createElement('style');
+                    style.innerHTML = `
+                        :root { --db-primary: ${primary}; }
+                        body { 
+                            background-image: url('${bg}') !important; 
+                            background-size: cover !important; 
+                            background-position: center !important;
+                            background-attachment: fixed !important; 
+                        }
+                        .orbit-ball, .confirm-btn.yes { background-color: ${primary} !important; }
+                        .orbit-ball { box-shadow: 0 0 15px ${primary}, 0 0 30px ${primary} !important; }
+                        .loader-text { color: ${primary} !important; }
+                        .tab .badge { color: #000000 !important; background: #ffffff !important; }
+                        .tab.active, .nav-menu a:hover { background-color: ${primary} !important; color: #ffffff !important; }
+                        .tab.active, .search-bar:focus { border-color: ${primary} !important; }
+                        td.mono, .topbar h1 { color: ${primary} !important; }
+                        .hamburger span { background-color: ${primary} !important; }
+                        .nav-menu, .hamburger, .tab, .table-wrap, .search-bar, .topbar span, th { 
+                            background: ${card} !important; 
+                            backdrop-filter: blur(15px) !important;
+                            border: 1px solid rgba(255,255,255,0.1) !important;
+                            color: #ffffff !important;
+                        }
+                        .btn-refresh { background-color: #000000 !important; color: #ffffff !important; border: 2px solid #ffffff !important; cursor: pointer; }
+                    `;
+                    document.head.appendChild(style);
+                }
+            } catch (e) { console.log("Gagal sinkron tema"); }
+        }
+        syncTampilan();
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0b0d0f; min-height: 100vh; padding: 20px; max-width: 600px; margin: auto; overflow-x: hidden; }
+
+        /* --- PRELOADER FIX --- */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999999; opacity: 1; visibility: visible; transition: opacity 0.5s ease; }
+        #preloader.fade-out { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+        .orbit-container { position: relative; width: 85px; height: 85px; }
+        .orbit-ring { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
+        .orbit-spinner { position: absolute; width: 100%; height: 100%; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
+        .orbit-ball { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background-color: #555; border-radius: 50%; transform: translateX(-50%); transition: 0.8s ease; }
+        .loader-text { margin-top: 35px; color: #555; font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; text-align: center; transition: 0.8s ease; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- HAMBURGER --- */
+        .menu-wrapper { position: fixed; top: 20px; right: 20px; z-index: 10002; }
+        #menuToggle { display: none; }
+        .hamburger { width: 45px; height: 45px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
+        .hamburger span { display: block; width: 22px; height: 2px; border-radius: 2px; transition: 0.4s; }
+        #menuToggle:checked + .hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        #menuToggle:checked + .hamburger span:nth-child(2) { opacity: 0; }
+        #menuToggle:checked + .hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .nav-menu { position: fixed; top: 75px; right: -250px; width: 200px; border-radius: 20px; padding: 15px; transition: 0.4s; z-index: 10003; }
+        #menuToggle:checked ~ .nav-menu { right: 20px; }
+        .nav-menu a { display: block; color: #fff; text-decoration: none; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 12px; }
+
+        /* --- UI ELEMENTS --- */
+        .topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; padding-right: 60px; }
+        .topbar h1 { font-size: 1.2rem; font-weight: 800; }
+        .topbar span { font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        .btn-refresh { border: none; padding: 10px 14px; border-radius: 12px; font-size: 18px; margin-left: auto; transition: 0.2s; }
+        .btn-refresh:active { transform: scale(0.8); }
+
+        .tabs { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px; margin-bottom: 20px; scrollbar-width: none; }
+        .tab { padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; position: relative; }
+        .tab .badge { position: absolute; top: -8px; right: -5px; font-size: 10px; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 900; }
+        
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .search-bar { width: 100%; padding: 14px; color: #fff; border-radius: 15px; outline: none; font-size: 13px; margin-bottom: 20px; }
+        .table-wrap { overflow-x: auto; border-radius: 18px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 450px; }
+        th { padding: 15px; text-align: left; text-transform: uppercase; }
+        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        .btn-del { padding: 8px 16px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); transition: 0.3s; }
+        .btn-del:hover { background: #ff3b30; color: #fff; }
+
+        #customConfirm { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 999999; align-items: center; justify-content: center; padding: 20px; }
+        .confirm-box { background: #161a1e; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 320px; border-radius: 24px; padding: 25px; text-align: center; }
+        #customConfirm.show { display: flex; }
+        .confirm-btn { padding: 12px; border-radius: 14px; border: none; font-size: 12px; font-weight: 800; cursor: pointer; width: 100%; }
+        .confirm-btn.yes { color: #000 !important; margin-top: 10px; }
+        .confirm-btn.no { background: rgba(255,255,255,0.05); color: #fff; }
+    </style>
+</head>
+<body>
+
+<div id="preloader">
+    <div class="orbit-container">
+        <div class="orbit-ring"></div>
+        <div class="orbit-spinner"><div class="orbit-ball"></div></div>
+    </div>
+    <div class="loader-text" id="loaderTextDisplay">LOADING...</div>
+</div>
+
+<div class="menu-wrapper">
+    <input type="checkbox" id="menuToggle">
+    <label for="menuToggle" class="hamburger"><span></span><span></span><span></span></label>
+    <div class="nav-menu">
+        <a href="index.html">👑 Owner Panel</a>
+        <a href="datasewa.html">👾 Data Sewa Web</a>
+        <a href="keuntungan.html">💰 Keuntungan</a>
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:5px 0;">
+        <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
+    </div>
+</div>
+
+<div id="customConfirm">
+    <div class="confirm-box">
+        <h3 style="color:white; margin-bottom:10px;">Hapus Data?</h3>
+        <button class="confirm-btn no" onclick="closeConfirm(false)">Batal</button>
+        <button class="confirm-btn yes" onclick="closeConfirm(true)">Ya, Hapus</button>
+    </div>
+</div>
+
+<div class="topbar">
+    <h1>🗄️ Database</h1>
+    <span id="storeNameLabel">NAMASTORE</span>
+    <button class="btn-refresh" onclick="loadAll()">↻</button>
+</div>
+
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('produk')" id="tab-produk">📦 Produk <span class="badge" id="badge-produk">0</span></div>
+    <div class="tab" onclick="switchTab('stok')" id="tab-stok">🗂️ Stok <span class="badge" id="badge-stok">0</span></div>
+    <div class="tab" onclick="switchTab('transaksi')" id="tab-transaksi">💳 TRX <span class="badge" id="badge-transaksi">0</span></div>
+    <div class="tab" onclick="switchTab('raw')" id="tab-raw">{ } Raw</div>
+</div>
+
+<div class="section active" id="section-produk">
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama</th><th>Harga</th><th>Stok</th></tr></thead><tbody id="body-produk"></tbody></table></div>
+</div>
+
+<div class="section" id="section-stok">
+    <div class="table-wrap"><table><thead><tr><th>Produk</th><th>Data</th><th>Aksi</th></tr></thead><tbody id="body-stok"></tbody></table></div>
+</div>
+
+<div class="section" id="section-transaksi">
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Pembeli</th><th>Produk</th><th>Aksi</th></tr></thead><tbody id="body-transaksi"></tbody></table></div>
+</div>
+
+<div class="section" id="section-raw">
+    <pre id="rawBox" style="background:rgba(0,0,0,0.5); padding:15px; border-radius:15px; font-size:11px; overflow-x:auto; color:#fff;"></pre>
+</div>
+
+<script>
+    // URL BASE DATABASE BARU
+    const BASE_URL = "https://ownernidalop-default-rtdb.firebaseio.com/";
+    let DB = { produk: {}, stok_akun: {}, transaksi: {} };
+    let confirmCallback = null;
+
+    function hideLoader() {
+        const loader = document.getElementById('preloader');
+        if (loader) loader.classList.add('fade-out');
+    }
+
+    async function loadAll() {
+        document.getElementById('preloader').classList.remove('fade-out');
+        const safety = setTimeout(hideLoader, 2500);
+
+        try {
+            const [rP, rS, rT] = await Promise.all([
+                fetch(`${BASE_URL}produk.json`).then(r => r.json()),
+                fetch(`${BASE_URL}stok_akun.json`).then(r => r.json()),
+                fetch(`${BASE_URL}transaksi.json`).then(r => r.json())
+            ]);
+            DB.produk = rP || {};
+            DB.stok_akun = rS || {};
+            DB.transaksi = rT || {};
+            renderAll();
+            
+            clearTimeout(safety);
+            setTimeout(hideLoader, 600);
+        } catch (e) { 
+            console.log("Error fetch");
+            hideLoader(); 
+        }
+    }
+
+    function switchTab(name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        document.getElementById('section-' + name).classList.add('active');
+        if(name === 'raw') document.getElementById('rawBox').innerText = JSON.stringify(DB, null, 2);
+    }
+
+    function renderAll() {
+        const bP = document.getElementById('body-produk'); bP.innerHTML = '';
+        Object.keys(DB.produk).forEach(id => {
+            const p = DB.produk[id];
+            const s = DB.stok_akun[id] ? Object.keys(DB.stok_akun[id]).length : 0;
+            bP.innerHTML += `<tr><td class="mono">${id}</td><td><b>${p.nama}</b></td><td>${p.harga}</td><td>${s} Unit</td></tr>`;
+        });
+        document.getElementById('badge-produk').innerText = Object.keys(DB.produk).length;
+
+        const bS = document.getElementById('body-stok'); bS.innerHTML = '';
+        let countS = 0;
+        Object.keys(DB.stok_akun).forEach(pId => {
+            Object.keys(DB.stok_akun[pId]).forEach(aId => {
+                countS++;
+                bS.innerHTML += `<tr><td>${DB.produk[pId]?.nama || pId}</td><td>${DB.stok_akun[pId][aId]}</td><td><button class="btn-del" onclick="hapusStok('${pId}','${aId}')">HAPUS</button></td></tr>`;
+            });
+        });
+        document.getElementById('badge-stok').innerText = countS;
+
+        const bT = document.getElementById('body-transaksi'); bT.innerHTML = '';
+        Object.keys(DB.transaksi).reverse().forEach(id => {
+            const t = DB.transaksi[id];
+            bT.innerHTML += `<tr><td class="mono">${id}</td><td>${t.nama || t.email}</td><td>${t.produk || 'Premium'}</td><td><button class="btn-del" onclick="hapusTrx('${id}')">HAPUS</button></td></tr>`;
+        });
+        document.getElementById('badge-transaksi').innerText = Object.keys(DB.transaksi).length;
+    }
+
+    function luxuryConfirm(msg, callback) { document.getElementById('customConfirm').classList.add('show'); confirmCallback = callback; }
+    function closeConfirm(res) { document.getElementById('customConfirm').classList.remove('show'); if(res && confirmCallback) confirmCallback(); confirmCallback = null; }
+    async function hapusStok(pId, aId) { luxuryConfirm("", async () => { await fetch(`${BASE_URL}stok_akun/${pId}/${aId}.json`, { method: 'DELETE' }); loadAll(); }); }
+    async function hapusTrx(id) { luxuryConfirm("", async () => { await fetch(`${BASE_URL}transaksi/${id}.json`, { method: 'DELETE' }); loadAll(); }); }
+
+    loadAll();
+</script>
+</body>
+</html>
