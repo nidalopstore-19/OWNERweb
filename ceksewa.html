@@ -13,28 +13,22 @@
         const DB_URL = `${DB_BASE}licenses/${MY_SECRET_KEY}.json`;
 
         async function jalankanProteksi() {
+            const loaderText = document.getElementById('loader-text');
             try {
-                // SINKRONISASI WARNA DARI DATABASE CONFIG (OPSIONAL)
+                // SINKRONISASI WARNA DB (Hanya untuk Bola Loading)
                 const resConf = await fetch(`${DB_BASE}owner_config.json`);
                 const config = await resConf.json();
                 if (config && config.colors) {
-                    document.documentElement.style.setProperty('--p-color', config.colors.primary);
+                    document.documentElement.style.setProperty('--db-color', config.colors.primary);
                 }
 
                 const res = await fetch(DB_URL);
                 const data = await res.json();
 
-                // Delay sedikit agar animasi loading terlihat mewah
-                setTimeout(() => {
-                    const loader = document.getElementById('preloader');
-                    loader.style.opacity = '0';
-                    setTimeout(() => {
-                        loader.style.display = 'none';
-                        document.getElementById('memberContent').style.display = 'block';
-                    }, 500);
-                }, 1500);
-
                 if (data) {
+                    // Ganti teks loading menjadi nama sewa (Member)
+                    loaderText.innerText = `SYNCHRONIZING ${data.nama.toUpperCase()}...`;
+                    
                     document.getElementById('namaMember').innerText = data.nama || "Member";
                     document.getElementById('logoOwner').src = URL_LOGO;
 
@@ -47,11 +41,23 @@
                         tampilkanStatusTerkunci();
                     }
                 } else {
+                    loaderText.innerText = "KEY TIDAK VALID";
                     document.getElementById('countdownBox').innerText = "KEY TIDAK VALID";
-                    document.getElementById('countdownBox').style.color = "#ff3131";
                 }
+
+                // Sembunyikan loader setelah proses selesai
+                setTimeout(() => {
+                    const loader = document.getElementById('preloader');
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        document.getElementById('memberContent').style.display = 'block';
+                    }, 500);
+                }, 1500);
+
             } catch (e) {
                 console.error("Gagal memuat data lisensi");
+                loaderText.innerText = "KONEKSI GAGAL";
                 document.getElementById('preloader').style.display = 'none';
                 document.getElementById('memberContent').style.display = 'block';
                 document.getElementById('countdownBox').innerText = "KONEKSI GAGAL";
@@ -82,9 +88,9 @@
 
         function tampilkanStatusTerkunci() {
             document.getElementById('timerLabel').innerText = "DURASI TELAH HABIS";
-            document.getElementById('countdownBox').innerText = "WEB SHOP ANDA TELAH TERKUNCI";
+            document.getElementById('countdownBox').innerText = "WEB SHOP ANDA TERKUNCI";
             document.getElementById('countdownBox').style.fontSize = "16px";
-            document.getElementById('countdownBox').style.color = "#ff3131";
+            document.getElementById('countdownBox').style.color = "#888";
             document.getElementById('expiryInfoBox').innerHTML = "Silakan hubungi Owner / Developer";
         }
 
@@ -92,35 +98,49 @@
     </script>
 
     <style>
-        /* Warna default Abu-abu untuk loading */
-        :root { --p-color: #555; --bg: #0b0d0f; --card: #161a1e; }
+        /* WARNA NETRAL */
+        :root { 
+            --db-color: #888; 
+            --bg: #0b0d0f; 
+            --card: #161a1e; 
+            --text-main: #ffffff;
+            --text-dim: #8e959e;
+            --border-neutral: #333;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #fff; min-height: 100vh; padding: 20px; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
         
-        /* --- PRELOADER (ORBIT ANIMATION) --- */
+        /* --- PRELOADER --- */
         #preloader { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; transition: 0.8s; }
         .orbit-container { position: relative; width: 85px; height: 85px; }
         .orbit-ring { position: absolute; inset: 0; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
         .orbit-spinner { position: absolute; inset: 0; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
-        .orbit-ball { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background: var(--p-color); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--p-color), 0 0 30px var(--p-color); transition: background 0.5s, box-shadow 0.5s; }
+        .orbit-ball { 
+            position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; 
+            background: var(--db-color); 
+            border-radius: 50%; transform: translateX(-50%); 
+            box-shadow: 0 0 15px var(--db-color), 0 0 30px var(--db-color); 
+            transition: background 0.5s, box-shadow 0.5s; 
+        }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .loader-text { margin-top: 35px; color: var(--p-color); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; text-align: center; transition: color 0.5s; }
+        .loader-text { margin-top: 35px; color: #fff; font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; text-align: center; max-width: 80%; line-height: 1.5; }
 
-        /* --- MENU HAMBURGER (WARNA ABU) --- */
+        /* --- MENU HAMBURGER --- */
         .menu-wrapper { position: fixed; top: 25px; right: 25px; z-index: 10002; }
         #menuToggle { display: none; }
-        .hamburger { width: 45px; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: 0.3s; }
-        .hamburger span { display: block; width: 20px; height: 2px; background: #888; border-radius: 2px; transition: 0.3s; }
+        .hamburger { width: 45px; height: 45px; background: #1a1a1a; border: 1px solid var(--border-neutral); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: 0.3s; }
+        .hamburger span { display: block; width: 20px; height: 2px; background: #fff; border-radius: 2px; transition: 0.3s; }
         
-        .nav-menu { position: fixed; top: 80px; right: -250px; width: 200px; background: rgba(0,0,0,0.5); border: 1px solid #888; border-radius: 20px; padding: 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; backdrop-filter: blur(10px); }
+        .nav-menu { position: fixed; top: 80px; right: -250px; width: 200px; background: rgba(20,20,20,0.9); border: 1px solid var(--border-neutral); border-radius: 20px; padding: 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; backdrop-filter: blur(10px); }
         #menuToggle:checked ~ .nav-menu { right: 25px; }
         
-        #menuToggle:checked ~ .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); background: #ff3131; }
+        #menuToggle:checked ~ .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); background: #fff; }
         #menuToggle:checked ~ .hamburger span:nth-child(2) { opacity: 0; }
-        #menuToggle:checked ~ .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); background: #ff3131; }
+        #menuToggle:checked ~ .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); background: #fff; }
         
-        .nav-menu a { display: block; color: #a1a1aa; text-decoration: none; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 12px; transition: 0.2s; cursor: pointer; }
-        .nav-menu a:hover { background: #2d0a0a; color: #ff3131; }
+        .nav-menu a { display: block; color: var(--text-dim); text-decoration: none; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 12px; transition: 0.2s; }
+        .nav-menu a:hover { background: #333; color: #fff; }
 
         /* --- MAIN CARD --- */
         .main-card { 
@@ -131,18 +151,18 @@
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        .logo-box { width: 70px; height: 70px; background: var(--bg); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; border: 1px solid #ff3131; box-shadow: 0 0 20px rgba(255,49,49,0.2); overflow: hidden; }
+        .logo-box { width: 70px; height: 70px; background: var(--bg); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; border: 1px solid var(--border-neutral); overflow: hidden; }
         .logo-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .welcome-text { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
-        .member-name { color: #fff; }
-        .ucapan-text { font-size: 13px; color: #8e959e; line-height: 1.6; margin-bottom: 35px; }
+        .welcome-text { font-size: 24px; font-weight: 900; margin-bottom: 10px; color: #fff; }
+        .member-name { color: #fff; } 
+        .ucapan-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 35px; }
         
-        .timer-section { background: var(--bg); padding: 25px; border-radius: 30px; border: 1px solid #1e2227; position: relative; }
+        .timer-section { background: var(--bg); padding: 25px; border-radius: 30px; border: 1px solid var(--border-neutral); position: relative; }
         .timer-label { font-size: 9px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px; }
         #countdownBox { font-size: 26px; font-weight: 900; color: #fff; font-family: 'Courier New', monospace; }
-        .expiry-info { font-size: 10px; color: #ff3131; margin-top: 15px; font-weight: 700; opacity: 0.6; }
         
+        .expiry-info { font-size: 10px; color: var(--text-dim); margin-top: 15px; font-weight: 700; opacity: 0.6; }
         .owner-tag { margin-top: 35px; font-size: 10px; color: #333; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; }
     </style>
 </head>
@@ -153,7 +173,7 @@
             <div class="orbit-ring"></div>
             <div class="orbit-spinner"><div class="orbit-ball"></div></div>
         </div>
-        <div class="loader-text">SEDANG MEMGECEK DURASI...</div>
+        <div class="loader-text" id="loader-text">LOADING...</div>
     </div>
 
     <div id="memberContent" style="display: none;">
@@ -165,13 +185,10 @@
                 <span></span>
             </label>
             <div class="nav-menu">
-                <a href="index.html">👑 Owner Panel</a>
+              <a href="index.html">👑 Owner Panel</a>
                 <a href="database.html">📊 Database Viewer</a>
                 <a href="keuntungan.html">💰 Keuntungan</a>
                 <a href="admin_settings.html">🎨 Customizer</a>
-                <hr style="border: 0; border-top: 1px solid #3d1414; margin: 5px 0;">
-                <a href="#" onclick="localStorage.clear(); location.reload();">🚪 Logout</a>
-                <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
             </div>
         </div>
 
@@ -189,7 +206,7 @@
 
             <div class="timer-section">
                 <div id="timerLabel" class="timer-label">Sisa Durasi Sewa Anda:</div>
-                <div id="countdownBox">MEMUAT...</div>
+                <div id="countdownBox">00h 00m 00s</div>
                 <div id="expiryInfoBox" class="expiry-info">Berakhir pada: <span id="badgeExpiry">...</span></div>
             </div>
 
