@@ -5,22 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Panel PRO — Multi-License</title>
     <style>
-        :root { --p-color: #ff3131; --card-bg: rgba(22, 26, 30, 0.95); --input-bg: #0b0d0f; --text-muted: #8e959e; }
+        /* Warna default Abu-abu saat pertama kali load */
+        :root { --p-color: #555; --card-bg: rgba(22, 26, 30, 0.95); --input-bg: #0b0d0f; --text-muted: #8e959e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
         body { background-color: #0b0d0f; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
 
-        /* --- OVERLAY PIN --- */
-        #loginOverlay { position: fixed; inset: 0; background: #0b0d0f; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .shake { animation: shake 0.4s ease-in-out; border: 2px solid var(--p-color) !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        /* --- PRELOADER (ORBIT ANIMATION) --- */
+        #preloader { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000000; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .orbit-container { position: relative; width: 85px; height: 85px; }
+        .orbit-ring { position: absolute; inset: 0; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
+        .orbit-spinner { position: absolute; inset: 0; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
+        .orbit-ball { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background: var(--p-color); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--p-color), 0 0 30px var(--p-color); transition: background 0.5s, box-shadow 0.5s; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loader-text { margin-top: 35px; color: var(--p-color); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; text-align: center; transition: color 0.5s; }
 
         /* --- MENU NAVIGASI --- */
         .menu-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 12px; color: var(--p-color); cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         .nav-menu { position: fixed; top: 80px; right: -280px; width: 230px; background: var(--card-bg); z-index: 1001; padding: 15px; border-radius: 20px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px); opacity: 0; visibility: hidden; }
         .nav-menu.active { right: 20px; opacity: 1; visibility: visible; }
         .nav-menu a { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; padding: 12px; font-size: 12px; font-weight: 700; border-radius: 12px; transition: 0.2s; margin-bottom: 3px; }
-        .nav-menu a:hover { background: rgba(255,49,49,0.1); color: var(--p-color); }
+        .nav-menu a:hover { background: rgba(255,255,255,0.05); color: var(--p-color); }
         .nav-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 8px 0; }
 
         /* --- LUXURY CONFIRM MODAL --- */
@@ -34,10 +39,10 @@
         .confirm-btns { display: flex; gap: 12px; }
         .btn-c { flex: 1; padding: 14px; border-radius: 15px; border: none; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
         .btn-no { background: rgba(255,255,255,0.05); color: #fff; }
-        .btn-yes { background: var(--p-color); color: #fff; box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2); }
+        .btn-yes { background: var(--p-color); color: #fff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
 
         /* --- CONTAINER UTAMA --- */
-        .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; }
+        .wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; height: 100vh; padding: 20px; opacity: 0; transition: 0.5s; }
         .top-section { flex-shrink: 0; margin-bottom: 15px; }
 
         /* --- DYNAMIC FORM PANEL --- */
@@ -73,11 +78,19 @@
         .btn-toggle { background: #fff; color: #000; }
         .btn-toggle.active-btn { background: #00ff80; color: #000; }
 
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; }
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
         #toast.show { top: 30px; }
     </style>
 </head>
 <body>
+
+    <div id="preloader">
+        <div class="orbit-container">
+            <div class="orbit-ring"></div>
+            <div class="orbit-spinner"><div class="orbit-ball"></div></div>
+        </div>
+        <div class="loader-text" id="loader-status">LOADING...</div>
+    </div>
 
     <button class="menu-btn" onclick="toggleMenu()"><span id="icon-menu">☰</span></button>
 
@@ -88,7 +101,6 @@
         <a href="admin_settings.html">🎨 Customizer</a>
         <hr class="nav-divider">
         <a href="#" onclick="localStorage.clear(); location.reload();" style="color: #ff3131;">🚪 Logout</a>
-        <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
     </div>
 
     <div id="luxuryConfirm">
@@ -103,17 +115,9 @@
         </div>
     </div>
 
-    <div id="loginOverlay">
-        <div id="loginCard" style="background:var(--card-bg); padding:30px; border-radius:30px; text-align:center; width:90%; max-width:320px;">
-            <h2 style="margin-bottom:20px; font-size:18px; color:var(--p-color);">OWNER LOGIN</h2>
-            <input type="password" id="passPin" placeholder="••••" style="text-align:center; font-size:24px; letter-spacing:8px; width:100%;">
-            <button class="btn-main" onclick="verifyPin()" style="margin-top:15px;">AUTHENTICATE</button>
-        </div>
-    </div>
-
     <div id="toast">SYSTEM UPDATED! 🚀</div>
 
-    <div class="wrapper" id="mainContent" style="display: none;">
+    <div class="wrapper" id="mainContent">
         <div class="top-section">
             <div class="expand-card" id="formPanel">
                 <div class="expand-header" onclick="toggleForm()">
@@ -136,8 +140,8 @@
     </div>
 
     <script>
-        const PIN = "3945123"; 
-        const FB_URL = "https://ownernidalop-default-rtdb.firebaseio.com/licenses"; 
+        const BASE_URL = "https://ownernidalop-default-rtdb.firebaseio.com/";
+        const FB_URL = `${BASE_URL}licenses`; 
 
         let deleteTargetId = null;
 
@@ -150,16 +154,33 @@
 
         function toggleForm() { document.getElementById('formPanel').classList.toggle('open'); }
 
-        function verifyPin() {
-            if(document.getElementById('passPin').value === PIN) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'flex';
-                fetchData();
-            } else {
-                const card = document.getElementById('loginCard');
-                card.classList.add('shake');
-                setTimeout(() => card.classList.remove('shake'), 400);
-            }
+        // SINKRONISASI TEMA & WARNA DARI DATABASE
+        async function syncThemeAndInit() {
+            const loaderStatus = document.getElementById('loader-status');
+            const preloader = document.getElementById('preloader');
+            const content = document.getElementById('mainContent');
+
+            try {
+                // Fetch Warna Primary dari owner_config
+                const res = await fetch(`${BASE_URL}owner_config.json`);
+                const config = await res.json();
+
+                if (config && config.colors) {
+                    // Update warna dari database
+                    document.documentElement.style.setProperty('--p-color', config.colors.primary);
+                    loaderStatus.innerText = "KHUSUS OWNER NIDALOP...";
+                }
+            } catch (e) { console.log("Offline Mode"); }
+
+            // Loading Delay Mewah
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    content.style.opacity = '1';
+                    fetchData();
+                }, 800);
+            }, 1500);
         }
 
         async function saveData() {
@@ -170,8 +191,6 @@
             if(!name || !key || !date) return;
 
             const targetId = editId ? editId : key;
-            
-            // Fix: Paksa refresh data setelah PUT dengan memanggil fetchData
             await fetch(`${FB_URL}/${targetId}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
@@ -180,20 +199,16 @@
             showToast("DATA SAVED!");
             resetForm();
             if(document.getElementById('formPanel').classList.contains('open')) toggleForm();
-            
-            // REFRESH DATA OTOMATIS
             fetchData();
         }
 
         async function fetchData() {
-            // Fix: Tambahkan timestamp agar browser tidak mengambil cache lama
             const res = await fetch(`${FB_URL}.json?nocache=${new Date().getTime()}`);
             const data = await res.json();
             const container = document.getElementById('licenseList');
             container.innerHTML = "";
             
             if(data) {
-                // Reverse agar data terbaru selalu di atas dan tidak tenggelam
                 const sortedKeys = Object.keys(data).reverse();
                 sortedKeys.forEach(id => {
                     const item = data[id];
@@ -225,22 +240,20 @@
 
         function closeLuxuryModal(confirm) {
             document.getElementById('luxuryConfirm').classList.remove('show');
-            if(confirm && deleteTargetId) {
-                executeDelete(deleteTargetId);
-            }
+            if(confirm && deleteTargetId) executeDelete(deleteTargetId);
             deleteTargetId = null;
         }
 
         async function executeDelete(id) {
             await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
             showToast("MEMBER DELETED! 💀");
-            fetchData(); // Refresh list setelah hapus
+            fetchData();
         }
 
         async function toggleStatus(id, current) {
             const next = current === 'active' ? 'expired' : 'active';
             await fetch(`${FB_URL}/${id}/status.json`, { method: 'PUT', body: JSON.stringify(next) });
-            fetchData(); // Refresh list setelah toggle
+            fetchData();
         }
 
         async function prepareEdit(id) {
@@ -252,8 +265,6 @@
             document.getElementById('dateInput').value = data.expiry_date;
             document.getElementById('formTitle').innerText = "EDIT MODE";
             if(!document.getElementById('formPanel').classList.contains('open')) toggleForm();
-            
-            // Scroll ke atas otomatis agar user sadar sedang mode edit
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -271,8 +282,8 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // Jalankan fetch pertama kali
-        fetchData();
+        // Jalankan sinkronisasi tema dan inisialisasi
+        syncThemeAndInit();
     </script>
 </body>
 </html>
