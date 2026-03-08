@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area — NIDALOPSTORE</title>
+
+    <script>
+        // --- KONFIGURASI MANUAL ---
+        const MY_SECRET_KEY = "OWNER-NIDALOP"; 
+        const URL_LOGO = "https://raw.githubusercontent.com/bagus-api/storage/master/VpPBE.jpg"; 
+        const DB_BASE = "https://ownernidalop-default-rtdb.firebaseio.com/";
+        const DB_URL = `${DB_BASE}licenses/${MY_SECRET_KEY}.json`;
+
+        async function jalankanProteksi() {
+            try {
+                // SINKRONISASI WARNA DARI DATABASE CONFIG (OPSIONAL)
+                const resConf = await fetch(`${DB_BASE}owner_config.json`);
+                const config = await resConf.json();
+                if (config && config.colors) {
+                    document.documentElement.style.setProperty('--p-color', config.colors.primary);
+                }
+
+                const res = await fetch(DB_URL);
+                const data = await res.json();
+
+                // Delay sedikit agar animasi loading terlihat mewah
+                setTimeout(() => {
+                    const loader = document.getElementById('preloader');
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        document.getElementById('memberContent').style.display = 'block';
+                    }, 500);
+                }, 1500);
+
+                if (data) {
+                    document.getElementById('namaMember').innerText = data.nama || "Member";
+                    document.getElementById('logoOwner').src = URL_LOGO;
+
+                    const skrg = new Date();
+                    const expiry = new Date(data.expiry_date);
+
+                    if (data.status === "active" && skrg < expiry) {
+                        mulaiHitungMundur(data.expiry_date);
+                    } else {
+                        tampilkanStatusTerkunci();
+                    }
+                } else {
+                    document.getElementById('countdownBox').innerText = "KEY TIDAK VALID";
+                    document.getElementById('countdownBox').style.color = "#ff3131";
+                }
+            } catch (e) {
+                console.error("Gagal memuat data lisensi");
+                document.getElementById('preloader').style.display = 'none';
+                document.getElementById('memberContent').style.display = 'block';
+                document.getElementById('countdownBox').innerText = "KONEKSI GAGAL";
+            }
+        }
+
+        function mulaiHitungMundur(tglHabis) {
+            const target = new Date(tglHabis).getTime();
+            const timer = setInterval(() => {
+                const skrg = new Date().getTime();
+                const selisih = target - skrg;
+
+                if (selisih < 0) {
+                    clearInterval(timer);
+                    tampilkanStatusTerkunci();
+                    return;
+                }
+
+                const hari = Math.floor(selisih / (1000 * 60 * 60 * 24));
+                const jam = Math.floor((selisih % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const menit = Math.floor((selisih % (1000 * 60 * 60)) / (1000 * 60));
+                const detik = Math.floor((selisih % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownBox').innerText = `${hari}h ${jam}j ${menit}m ${detik}s`;
+                document.getElementById('badgeExpiry').innerText = new Date(tglHabis).toLocaleString('id-ID', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+            }, 1000);
+        }
+
+        function tampilkanStatusTerkunci() {
+            document.getElementById('timerLabel').innerText = "DURASI TELAH HABIS";
+            document.getElementById('countdownBox').innerText = "WEB SHOP ANDA TELAH TERKUNCI";
+            document.getElementById('countdownBox').style.fontSize = "16px";
+            document.getElementById('countdownBox').style.color = "#ff3131";
+            document.getElementById('expiryInfoBox').innerHTML = "Silakan hubungi Owner / Developer";
+        }
+
+        window.onload = jalankanProteksi;
+    </script>
+
+    <style>
+        /* Warna default Abu-abu untuk loading */
+        :root { --p-color: #555; --bg: #0b0d0f; --card: #161a1e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; padding: 20px; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+        
+        /* --- PRELOADER (ORBIT ANIMATION) --- */
+        #preloader { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; transition: 0.8s; }
+        .orbit-container { position: relative; width: 85px; height: 85px; }
+        .orbit-ring { position: absolute; inset: 0; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
+        .orbit-spinner { position: absolute; inset: 0; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
+        .orbit-ball { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background: var(--p-color); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 15px var(--p-color), 0 0 30px var(--p-color); transition: background 0.5s, box-shadow 0.5s; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loader-text { margin-top: 35px; color: var(--p-color); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; text-align: center; transition: color 0.5s; }
+
+        /* --- MENU HAMBURGER (WARNA ABU) --- */
+        .menu-wrapper { position: fixed; top: 25px; right: 25px; z-index: 10002; }
+        #menuToggle { display: none; }
+        .hamburger { width: 45px; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: 0.3s; }
+        .hamburger span { display: block; width: 20px; height: 2px; background: #888; border-radius: 2px; transition: 0.3s; }
+        
+        .nav-menu { position: fixed; top: 80px; right: -250px; width: 200px; background: rgba(0,0,0,0.5); border: 1px solid #888; border-radius: 20px; padding: 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10001; backdrop-filter: blur(10px); }
+        #menuToggle:checked ~ .nav-menu { right: 25px; }
+        
+        #menuToggle:checked ~ .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); background: #ff3131; }
+        #menuToggle:checked ~ .hamburger span:nth-child(2) { opacity: 0; }
+        #menuToggle:checked ~ .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); background: #ff3131; }
+        
+        .nav-menu a { display: block; color: #a1a1aa; text-decoration: none; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 12px; transition: 0.2s; cursor: pointer; }
+        .nav-menu a:hover { background: #2d0a0a; color: #ff3131; }
+
+        /* --- MAIN CARD --- */
+        .main-card { 
+            background: var(--card); border-radius: 40px; padding: 45px 30px; 
+            max-width: 450px; width: 100%; text-align: center; border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            animation: fadeIn 0.8s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .logo-box { width: 70px; height: 70px; background: var(--bg); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; border: 1px solid #ff3131; box-shadow: 0 0 20px rgba(255,49,49,0.2); overflow: hidden; }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .welcome-text { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
+        .member-name { color: #fff; }
+        .ucapan-text { font-size: 13px; color: #8e959e; line-height: 1.6; margin-bottom: 35px; }
+        
+        .timer-section { background: var(--bg); padding: 25px; border-radius: 30px; border: 1px solid #1e2227; position: relative; }
+        .timer-label { font-size: 9px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px; }
+        #countdownBox { font-size: 26px; font-weight: 900; color: #fff; font-family: 'Courier New', monospace; }
+        .expiry-info { font-size: 10px; color: #ff3131; margin-top: 15px; font-weight: 700; opacity: 0.6; }
+        
+        .owner-tag { margin-top: 35px; font-size: 10px; color: #333; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="orbit-container">
+            <div class="orbit-ring"></div>
+            <div class="orbit-spinner"><div class="orbit-ball"></div></div>
+        </div>
+        <div class="loader-text">SEDANG MEMGECEK DURASI...</div>
+    </div>
+
+    <div id="memberContent" style="display: none;">
+        <div class="menu-wrapper">
+            <input type="checkbox" id="menuToggle">
+            <label for="menuToggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+            <div class="nav-menu">
+                <a href="database.html">📊 Database Viewer</a>
+                <a href="keuntungan.html">💰 Keuntungan</a>
+                <a href="admin_settings.html">🎨 Customizer</a>
+                <hr style="border: 0; border-top: 1px solid #3d1414; margin: 5px 0;">
+                <a href="#" onclick="localStorage.clear(); location.reload();">🚪 Logout</a>
+                <a href="https://cemastore.vercel.app/" target="_blank">🏠 Ke Toko</a>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="logo-box">
+                <img id="logoOwner" src="" alt="Logo">
+            </div>
+            
+            <div class="welcome-text">Halo, <span id="namaMember" class="member-name">...</span>!</div>
+            
+            <p class="ucapan-text">
+                Terima kasih telah menggunakan layanan kami.<br>
+                <b>NIDALOPSTORE</b> berkomitmen mempermudah bisnis Anda melalui solusi website yang cerdas.
+            </p>
+
+            <div class="timer-section">
+                <div id="timerLabel" class="timer-label">Sisa Durasi Sewa Anda:</div>
+                <div id="countdownBox">MEMUAT...</div>
+                <div id="expiryInfoBox" class="expiry-info">Berakhir pada: <span id="badgeExpiry">...</span></div>
+            </div>
+
+            <div class="owner-tag">NIDALOPSTORE OFFICIAL ACCESS</div>
+        </div>
+    </div>
+
+</body>
+</html>
