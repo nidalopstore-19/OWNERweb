@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Panel PRO — Multi-License</title>
+    <style>
+        :root { 
+            --p-color: #444444; 
+            --card-bg: #1a1a1a; 
+            --input-bg: #121212; 
+            --text-muted: #7a7a7a; 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        
+        body { 
+            background-color: #0f0f0f; 
+            color: #fff; height: 100vh; 
+            padding: 0; display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        /* --- PRELOADER MEWAH DENGAN TEKS DINAMIS --- */
+        #preloader { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000000; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 999999999; 
+            opacity: 1; visibility: visible;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+        #preloader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .orbit-container { position: relative; width: 85px; height: 85px; }
+        .orbit-ring { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
+        .orbit-spinner { position: absolute; width: 100%; height: 100%; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
+        .orbit-ball { 
+            position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; 
+            background-color: var(--p-color); border-radius: 50%; transform: translateX(-50%); 
+            box-shadow: 0 0 15px var(--p-color); 
+            transition: background-color 0.5s, box-shadow 0.5s;
+        }
+        .loader-text { 
+            margin-top: 35px; color: var(--p-color); font-size: 10px; font-weight: 900; 
+            letter-spacing: 3px; text-transform: uppercase; text-align: center; 
+            transition: all 0.5s ease; min-height: 20px;
+        }
+        
+        /* Animasi Titik Bergerak */
+        .dots::after {
+            content: '';
+            animation: dots-anim 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots-anim {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- LAYOUT FIXED --- */
+        .header-section { padding: 25px 20px 10px; flex-shrink: 0; width: 100%; max-width: 500px; margin: 0 auto; }
+        .scroll-section { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px 30px; scrollbar-width: none; }
+        .scroll-section::-webkit-scrollbar { display: none; }
+
+        .panel-card { 
+            background: var(--card-bg); border-radius: 30px; padding: 25px; 
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            margin-bottom: 25px;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+        .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
+        .clock-box { text-align: right; }
+        #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
+        #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; margin-left: 5px; letter-spacing: 1.5px; }
+        input { 
+            width: 100%; background: var(--input-bg); border: 2px solid #252525; 
+            padding: 14px; color: #fff; border-radius: 16px; outline: none; 
+            font-size: 13px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input:focus { border-color: var(--p-color); background: #1a1a1a; }
+
+        .btn-main { 
+            width: 100%; background: var(--p-color); color: #fff; border: none; 
+            padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .list-section-title { font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 15px 10px; }
+        .lic-card { 
+            background: var(--card-bg); border-radius: 24px; padding: 20px; 
+            border: 1px solid rgba(255,255,255,0.02); margin-bottom: 15px; 
+            transition: 0.3s; position: relative;
+        }
+        
+        .lic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lic-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
+        .badge-active { background: rgba(0, 255, 128, 0.05); color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.1); }
+        .badge-expired { background: rgba(255, 49, 49, 0.05); color: #ff3131; border: 1px solid rgba(255, 49, 49, 0.1); }
+
+        .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
+        .lic-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+        .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; transition: 0.2s; text-transform: uppercase; }
+        .btn-edit { background: #2a2a2a; color: #fff; }
+        .btn-del { background: rgba(255, 49, 49, 0.05); color: #ff3131; }
+        .btn-toggle { background: #fff; color: #000; }
+        .btn-toggle.active-btn { background: #00ff80; color: #000; }
+
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
+        #toast.show { top: 30px; }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="orbit-container">
+            <div class="orbit-ring"></div>
+            <div class="orbit-spinner"><div class="orbit-ball"></div></div>
+        </div>
+        <div class="loader-text" id="loaderText">LOADING<span class="dots"></span></div>
+    </div>
+
+    <div id="toast">SYSTEM UPDATED! 🚀</div>
+
+    <div class="header-section">
+        <div class="panel-card">
+            <div class="header">
+                <div>
+                    <div id="liveDate">LOADING...</div>
+                    <h2 id="formTitle">NEW LICENSE</h2>
+                </div>
+                <div class="clock-box">
+                    <div id="liveClock">00:00</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Member Name</label>
+                <input type="text" id="nameInput" placeholder="e.g. Namastore Client">
+            </div>
+            <div class="form-group">
+                <label>Manual API Key</label>
+                <input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1">
+            </div>
+            <div class="form-group">
+                <label>Expiration Date & Time</label>
+                <input type="datetime-local" id="dateInput">
+            </div>
+            <button class="btn-main" id="saveBtn" onclick="saveData()">SAVE CONFIGURATION</button>
+            <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin-top:15px; cursor:pointer;">DISCARD CHANGES</button>
+        </div>
+        <div class="list-section-title">Active Licenses</div>
+    </div>
+
+    <div class="scroll-section">
+        <div id="licenseList"></div>
+    </div>
+
+    <script>
+        const FB_BASE = "https://ownernidalop-default-rtdb.firebaseio.com/";
+        const FB_URL = FB_BASE + "licenses";
+
+        async function initApp() {
+            const statusText = document.getElementById('loaderText');
+            
+            try {
+                const res = await fetch(`${FB_BASE}owner_config.json`);
+                const config = await res.json();
+                if (config && config.colors) {
+                    document.documentElement.style.setProperty('--p-color', config.colors.primary);
+                }
+            } catch (e) { console.log("Config error"); }
+            
+            fetchData();
+
+            // Tahap 1: Loading... (sudah muncul di HTML)
+            // Tahap 2: Ganti teks setelah 1.5 detik
+            setTimeout(() => {
+                statusText.style.opacity = '0';
+                setTimeout(() => {
+                    statusText.innerHTML = "DATA PRIVAT MILIK OWNER NIDALOP";
+                    statusText.style.opacity = '1';
+                }, 500);
+            }, 1500);
+
+            // Tahap 3: Hilangkan preloader
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hide');
+            }, 3500);
+        }
+
+        async function saveData() {
+            const name = document.getElementById('nameInput').value;
+            const key = document.getElementById('apiInput').value;
+            const date = document.getElementById('dateInput').value;
+            const editId = document.getElementById('editId').value;
+
+            if(!name || !key || !date) return;
+
+            const targetId = editId ? editId : key;
+            await fetch(`${FB_URL}/${targetId}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
+            });
+
+            showToast("DATA SAVED!");
+            resetForm();
+            fetchData();
+        }
+
+        async function fetchData() {
+            const res = await fetch(`${FB_URL}.json`);
+            const data = await res.json();
+            const container = document.getElementById('licenseList');
+            container.innerHTML = "";
+
+            if(data) {
+                Object.keys(data).reverse().forEach(id => {
+                    const item = data[id];
+                    const isExp = new Date() > new Date(item.expiry_date);
+                    const statusText = isExp ? "EXPIRED" : (item.status === 'active' ? "ACTIVE" : "LOCKED");
+                    const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
+
+                    container.innerHTML += `
+                        <div class="lic-card">
+                            <div class="lic-header">
+                                <div class="lic-name">${item.nama}</div>
+                                <div class="badge ${statusClass}">${statusText}</div>
+                            </div>
+                            <code class="lic-key-row">> ${item.api_key}</code>
+                            <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
+                            
+                            <div class="action-grid">
+                                <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
+                                <button class="btn-act btn-del" onclick="deleteItem('${id}')">Delete</button>
+                                <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
+                                    ${item.status === 'active' ? 'ON' : 'OFF'}
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
+
+        async function toggleStatus(id, current) {
+            const next = current === 'active' ? 'expired' : 'active';
+            await fetch(`${FB_URL}/${id}/status.json`, { method: 'PUT', body: JSON.stringify(next) });
+            fetchData();
+        }
+
+        async function prepareEdit(id) {
+            const res = await fetch(`${FB_URL}/${id}.json`);
+            const data = await res.json();
+            document.getElementById('editId').value = id;
+            document.getElementById('nameInput').value = data.nama;
+            document.getElementById('apiInput').value = data.api_key;
+            document.getElementById('dateInput').value = data.expiry_date;
+            document.getElementById('formTitle').innerText = "EDIT MODE";
+            document.getElementById('saveBtn').innerText = "CONFIRM UPDATE";
+            document.getElementById('cancelBtn').style.display = "block";
+        }
+
+        async function deleteItem(id) {
+            if(confirm("Permanently delete?")) {
+                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
+                fetchData();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = "";
+            document.getElementById('nameInput').value = "";
+            document.getElementById('apiInput').value = "";
+            document.getElementById('dateInput').value = "";
+            document.getElementById('formTitle').innerText = "NEW LICENSE";
+            document.getElementById('saveBtn').innerText = "SAVE CONFIGURATION";
+            document.getElementById('cancelBtn').style.display = "none";
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function clock() {
+            const now = new Date();
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('en-US', {month:'long', day:'numeric'});
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        }
+        setInterval(clock, 1000); clock();
+        initApp();
+    </script>
+</body>
+</html>
