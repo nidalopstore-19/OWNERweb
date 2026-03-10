@@ -19,7 +19,7 @@
             padding: 0; display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* --- PRELOADER MEWAH DENGAN TEKS DINAMIS --- */
+        /* --- PRELOADER --- */
         #preloader { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000000; display: flex; flex-direction: column; 
@@ -42,22 +42,11 @@
             letter-spacing: 3px; text-transform: uppercase; text-align: center; 
             transition: all 0.5s ease; min-height: 20px;
         }
-        
-        /* Animasi Titik Bergerak */
-        .dots::after {
-            content: '';
-            animation: dots-anim 1.5s steps(5, end) infinite;
-        }
-        @keyframes dots-anim {
-            0%, 20% { content: ''; }
-            40% { content: '.'; }
-            60% { content: '..'; }
-            80%, 100% { content: '...'; }
-        }
-
+        .dots::after { content: ''; animation: dots-anim 1.5s steps(5, end) infinite; }
+        @keyframes dots-anim { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* --- LAYOUT FIXED --- */
+        /* --- LAYOUT --- */
         .header-section { padding: 25px 20px 10px; flex-shrink: 0; width: 100%; max-width: 500px; margin: 0 auto; }
         .scroll-section { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px 30px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
@@ -70,7 +59,6 @@
 
         .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
         .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
-        .clock-box { text-align: right; }
         #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
         #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
 
@@ -79,7 +67,7 @@
         input { 
             width: 100%; background: var(--input-bg); border: 2px solid #252525; 
             padding: 14px; color: #fff; border-radius: 16px; outline: none; 
-            font-size: 13px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 13px; transition: 0.3s;
         }
         input:focus { border-color: var(--p-color); background: #1a1a1a; }
 
@@ -87,31 +75,56 @@
             width: 100%; background: var(--p-color); color: #fff; border: none; 
             padding: 16px; border-radius: 16px; font-weight: 900; cursor: pointer; 
             transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .list-section-title { font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 15px 10px; }
+        /* --- DELETE PREMIUM ANIMATION --- */
+        .card-container { transition: all 0.5s ease; max-height: 500px; opacity: 1; }
+        .card-container.collapsed { max-height: 0; margin-bottom: 0; opacity: 0; overflow: hidden; }
         .lic-card { 
             background: var(--card-bg); border-radius: 24px; padding: 20px; 
             border: 1px solid rgba(255,255,255,0.02); margin-bottom: 15px; 
-            transition: 0.3s; position: relative;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+            position: relative; overflow: hidden;
         }
+        .lic-card.removing { transform: translateX(120%) rotate(15deg); opacity: 0; filter: blur(10px); pointer-events: none; }
         
         .lic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .lic-name { font-size: 14px; font-weight: 800; color: #fff; }
         .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
         .badge-active { background: rgba(0, 255, 128, 0.05); color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.1); }
         .badge-expired { background: rgba(255, 49, 49, 0.05); color: #ff3131; border: 1px solid rgba(255, 49, 49, 0.1); }
-
         .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
         .lic-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
 
         .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
         .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; transition: 0.2s; text-transform: uppercase; }
         .btn-edit { background: #2a2a2a; color: #fff; }
-        .btn-del { background: rgba(255, 49, 49, 0.05); color: #ff3131; }
+        .btn-del { background: rgba(255, 49, 49, 0.1); color: #ff3131; }
         .btn-toggle { background: #fff; color: #000; }
         .btn-toggle.active-btn { background: #00ff80; color: #000; }
+
+        /* --- CUSTOM MODAL DELETE --- */
+        #confirmModal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px); z-index: 1000000;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        #confirmModal.show { display: flex; opacity: 1; }
+        .modal-box {
+            background: #1a1a1a; width: 90%; max-width: 320px;
+            padding: 30px; border-radius: 35px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #confirmModal.show .modal-box { transform: scale(1); }
+        .modal-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .modal-box h3 { font-size: 16px; margin-bottom: 10px; letter-spacing: 1px; }
+        .modal-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .modal-btns { display: flex; gap: 10px; }
+        .m-btn { flex: 1; padding: 14px; border-radius: 18px; border: none; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-cancel { background: #2a2a2a; color: #fff; }
+        .btn-confirm-del { background: #ff3131; color: #fff; box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2); }
 
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
         #toast.show { top: 30px; }
@@ -127,6 +140,18 @@
         <div class="loader-text" id="loaderText">LOADING<span class="dots"></span></div>
     </div>
 
+    <div id="confirmModal">
+        <div class="modal-box">
+            <span class="modal-icon">🗑️</span>
+            <h3>HAPUS LISENSI?</h3>
+            <p>Data yang dihapus tidak dapat dikembalikan. Yakin ingin melanjutkan?</p>
+            <div class="modal-btns">
+                <button class="m-btn btn-cancel" onclick="closeModal()">BATALKAN</button>
+                <button class="m-btn btn-confirm-del" id="realDeleteBtn">HAPUS</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast">SYSTEM UPDATED! 🚀</div>
 
     <div class="header-section">
@@ -136,84 +161,40 @@
                     <div id="liveDate">LOADING...</div>
                     <h2 id="formTitle">NEW LICENSE</h2>
                 </div>
-                <div class="clock-box">
-                    <div id="liveClock">00:00</div>
-                </div>
+                <div class="clock-box"><div id="liveClock">00:00</div></div>
             </div>
-
             <input type="hidden" id="editId">
-            <div class="form-group">
-                <label>Member Name</label>
-                <input type="text" id="nameInput" placeholder="e.g. Namastore Client">
-            </div>
-            <div class="form-group">
-                <label>Manual API Key</label>
-                <input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1">
-            </div>
-            <div class="form-group">
-                <label>Expiration Date & Time</label>
-                <input type="datetime-local" id="dateInput">
-            </div>
+            <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="e.g. Namastore Client"></div>
+            <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1"></div>
+            <div class="form-group"><label>Expiration Date & Time</label><input type="datetime-local" id="dateInput"></div>
             <button class="btn-main" id="saveBtn" onclick="saveData()">SAVE CONFIGURATION</button>
             <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin-top:15px; cursor:pointer;">DISCARD CHANGES</button>
         </div>
         <div class="list-section-title">Active Licenses</div>
     </div>
 
-    <div class="scroll-section">
-        <div id="licenseList"></div>
-    </div>
+    <div class="scroll-section"><div id="licenseList"></div></div>
 
     <script>
         const FB_BASE = "https://ownernidalop-default-rtdb.firebaseio.com/";
         const FB_URL = FB_BASE + "licenses";
+        let deleteTargetId = null;
 
         async function initApp() {
             const statusText = document.getElementById('loaderText');
-            
             try {
                 const res = await fetch(`${FB_BASE}owner_config.json`);
                 const config = await res.json();
                 if (config && config.colors) {
                     document.documentElement.style.setProperty('--p-color', config.colors.primary);
                 }
-            } catch (e) { console.log("Config error"); }
-            
+            } catch (e) {}
             fetchData();
-
-            // Tahap 1: Loading... (sudah muncul di HTML)
-            // Tahap 2: Ganti teks setelah 1.5 detik
             setTimeout(() => {
                 statusText.style.opacity = '0';
-                setTimeout(() => {
-                    statusText.innerHTML = "DATA PRIVAT MILIK OWNER NIDALOP";
-                    statusText.style.opacity = '1';
-                }, 500);
+                setTimeout(() => { statusText.innerHTML = "DATA PRIVAT MILIK OWNER NIDALOP"; statusText.style.opacity = '1'; }, 500);
             }, 1500);
-
-            // Tahap 3: Hilangkan preloader
-            setTimeout(() => {
-                document.getElementById('preloader').classList.add('hide');
-            }, 3500);
-        }
-
-        async function saveData() {
-            const name = document.getElementById('nameInput').value;
-            const key = document.getElementById('apiInput').value;
-            const date = document.getElementById('dateInput').value;
-            const editId = document.getElementById('editId').value;
-
-            if(!name || !key || !date) return;
-
-            const targetId = editId ? editId : key;
-            await fetch(`${FB_URL}/${targetId}.json`, {
-                method: 'PUT',
-                body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" })
-            });
-
-            showToast("DATA SAVED!");
-            resetForm();
-            fetchData();
+            setTimeout(() => { document.getElementById('preloader').classList.add('hide'); }, 3500);
         }
 
         async function fetchData() {
@@ -221,7 +202,6 @@
             const data = await res.json();
             const container = document.getElementById('licenseList');
             container.innerHTML = "";
-
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id];
@@ -230,24 +210,65 @@
                     const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
 
                     container.innerHTML += `
-                        <div class="lic-card">
-                            <div class="lic-header">
-                                <div class="lic-name">${item.nama}</div>
-                                <div class="badge ${statusClass}">${statusText}</div>
-                            </div>
-                            <code class="lic-key-row">> ${item.api_key}</code>
-                            <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
-                            
-                            <div class="action-grid">
-                                <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
-                                <button class="btn-act btn-del" onclick="deleteItem('${id}')">Delete</button>
-                                <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
-                                    ${item.status === 'active' ? 'ON' : 'OFF'}
-                                </button>
+                        <div class="card-container" id="container-${id}">
+                            <div class="lic-card" id="card-${id}">
+                                <div class="lic-header">
+                                    <div class="lic-name">${item.nama}</div>
+                                    <div class="badge ${statusClass}">${statusText}</div>
+                                </div>
+                                <code class="lic-key-row">> ${item.api_key}</code>
+                                <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
+                                <div class="action-grid">
+                                    <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
+                                    <button class="btn-act btn-del" onclick="openModal('${id}')">Delete</button>
+                                    <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
+                                        ${item.status === 'active' ? 'ON' : 'OFF'}
+                                    </button>
+                                </div>
                             </div>
                         </div>`;
                 });
             }
+        }
+
+        // FUNGSI MODAL BARU BOS
+        function openModal(id) {
+            deleteTargetId = id;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        document.getElementById('realDeleteBtn').onclick = async function() {
+            if(!deleteTargetId) return;
+            const id = deleteTargetId;
+            closeModal();
+            
+            const card = document.getElementById(`card-${id}`);
+            const container = document.getElementById(`container-${id}`);
+            
+            card.classList.add('removing');
+            setTimeout(() => { container.classList.add('collapsed'); }, 300);
+            setTimeout(async () => {
+                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
+                fetchData();
+                deleteTargetId = null;
+            }, 800);
+        }
+
+        async function saveData() {
+            const name = document.getElementById('nameInput').value;
+            const key = document.getElementById('apiInput').value;
+            const date = document.getElementById('dateInput').value;
+            const editId = document.getElementById('editId').value;
+            if(!name || !key || !date) return;
+            const targetId = editId ? editId : key;
+            await fetch(`${FB_URL}/${targetId}.json`, { method: 'PUT', body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" }) });
+            showToast("DATA SAVED!");
+            resetForm();
+            fetchData();
         }
 
         async function toggleStatus(id, current) {
@@ -268,26 +289,16 @@
             document.getElementById('cancelBtn').style.display = "block";
         }
 
-        async function deleteItem(id) {
-            if(confirm("Permanently delete?")) {
-                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
-                fetchData();
-            }
-        }
-
         function resetForm() {
-            document.getElementById('editId').value = "";
-            document.getElementById('nameInput').value = "";
-            document.getElementById('apiInput').value = "";
-            document.getElementById('dateInput').value = "";
+            document.getElementById('editId').value = ""; document.getElementById('nameInput').value = "";
+            document.getElementById('apiInput').value = ""; document.getElementById('dateInput').value = "";
             document.getElementById('formTitle').innerText = "NEW LICENSE";
             document.getElementById('saveBtn').innerText = "SAVE CONFIGURATION";
             document.getElementById('cancelBtn').style.display = "none";
         }
 
         function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.classList.add('show');
+            const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
