@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owner Panel PRO — Multi-License</title>
+    <title>Owner Panel PRO — NIDALOPSTORE</title>
     <style>
         :root { 
             --p-color: #444444; 
@@ -19,7 +19,7 @@
             padding: 0; display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* --- PRELOADER --- */
+        /* --- PRELOADER MEWAH --- */
         #preloader { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000000; display: flex; flex-direction: column; 
@@ -34,8 +34,7 @@
         .orbit-ball { 
             position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; 
             background-color: var(--p-color); border-radius: 50%; transform: translateX(-50%); 
-            box-shadow: 0 0 15px var(--p-color); 
-            transition: background-color 0.5s, box-shadow 0.5s;
+            box-shadow: 0 0 15px var(--p-color); transition: 0.5s;
         }
         .loader-text { 
             margin-top: 35px; color: var(--p-color); font-size: 10px; font-weight: 900; 
@@ -46,7 +45,31 @@
         @keyframes dots-anim { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* --- LAYOUT --- */
+        /* --- NAVIGASI MEWAH --- */
+        .menu-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 1000000;
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05);
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .nav-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px); z-index: 999999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.4s;
+        }
+        .nav-overlay.show { display: flex; opacity: 1; }
+        .nav-menu-content { width: 80%; max-width: 300px; text-align: center; }
+        .nav-menu-content a {
+            display: block; color: #fff; text-decoration: none; padding: 15px;
+            font-size: 13px; font-weight: 800; letter-spacing: 1px;
+            text-transform: uppercase; border-radius: 15px; margin-bottom: 8px;
+            transition: 0.3s; border: 1px solid transparent;
+        }
+        .nav-menu-content a:hover { background: rgba(255,255,255,0.05); border-color: var(--p-color); color: var(--p-color); }
+
+        /* --- LAYOUT UTAMA --- */
         .header-section { padding: 25px 20px 10px; flex-shrink: 0; width: 100%; max-width: 500px; margin: 0 auto; }
         .scroll-section { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px 30px; scrollbar-width: none; }
         .scroll-section::-webkit-scrollbar { display: none; }
@@ -57,7 +80,7 @@
             margin-bottom: 25px;
         }
 
-        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-right: 50px; }
         .header h2 { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--p-color); }
         #liveClock { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
         #liveDate { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
@@ -66,8 +89,7 @@
         label { display: block; font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; margin-left: 5px; letter-spacing: 1.5px; }
         input { 
             width: 100%; background: var(--input-bg); border: 2px solid #252525; 
-            padding: 14px; color: #fff; border-radius: 16px; outline: none; 
-            font-size: 13px; transition: 0.3s;
+            padding: 14px; color: #fff; border-radius: 16px; outline: none; transition: 0.3s;
         }
         input:focus { border-color: var(--p-color); background: #1a1a1a; }
 
@@ -77,14 +99,13 @@
             transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
         }
 
-        /* --- DELETE PREMIUM ANIMATION --- */
+        /* --- ANIMASI DELETE --- */
         .card-container { transition: all 0.5s ease; max-height: 500px; opacity: 1; }
         .card-container.collapsed { max-height: 0; margin-bottom: 0; opacity: 0; overflow: hidden; }
         .lic-card { 
             background: var(--card-bg); border-radius: 24px; padding: 20px; 
             border: 1px solid rgba(255,255,255,0.02); margin-bottom: 15px; 
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
-            position: relative; overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); position: relative;
         }
         .lic-card.removing { transform: translateX(120%) rotate(15deg); opacity: 0; filter: blur(10px); pointer-events: none; }
         
@@ -93,8 +114,6 @@
         .badge { font-size: 8px; padding: 4px 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
         .badge-active { background: rgba(0, 255, 128, 0.05); color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.1); }
         .badge-expired { background: rgba(255, 49, 49, 0.05); color: #ff3131; border: 1px solid rgba(255, 49, 49, 0.1); }
-        .lic-key-row { font-family: 'Courier New', monospace; font-size: 11px; color: var(--p-color); margin-bottom: 10px; display: block; opacity: 0.8; }
-        .lic-date { font-size: 10px; color: var(--text-muted); font-weight: 600; }
 
         .action-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 15px; }
         .btn-act { padding: 10px; border-radius: 12px; border: none; cursor: pointer; font-size: 9px; font-weight: 800; transition: 0.2s; text-transform: uppercase; }
@@ -103,7 +122,7 @@
         .btn-toggle { background: #fff; color: #000; }
         .btn-toggle.active-btn { background: #00ff80; color: #000; }
 
-        /* --- CUSTOM MODAL DELETE --- */
+        /* --- MODAL DELETE --- */
         #confirmModal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px); z-index: 1000000;
@@ -118,13 +137,6 @@
             transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #confirmModal.show .modal-box { transform: scale(1); }
-        .modal-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-        .modal-box h3 { font-size: 16px; margin-bottom: 10px; letter-spacing: 1px; }
-        .modal-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
-        .modal-btns { display: flex; gap: 10px; }
-        .m-btn { flex: 1; padding: 14px; border-radius: 18px; border: none; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-cancel { background: #2a2a2a; color: #fff; }
-        .btn-confirm-del { background: #ff3131; color: #fff; box-shadow: 0 10px 20px rgba(255, 49, 49, 0.2); }
 
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #00ff80; color: #000; padding: 14px 28px; border-radius: 14px; font-weight: 800; transition: 0.5s; z-index: 100000; font-size: 12px; }
         #toast.show { top: 30px; }
@@ -140,14 +152,26 @@
         <div class="loader-text" id="loaderText">LOADING<span class="dots"></span></div>
     </div>
 
+    <div class="menu-btn" onclick="toggleNav()"><span id="menuIcon" style="font-size: 20px;">☰</span></div>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleNav()">
+        <div class="nav-menu-content" onclick="event.stopPropagation()">
+            <h2 style="color:var(--p-color); font-size: 10px; margin-bottom: 25px; letter-spacing: 3px;">NAVIGASI</h2>
+            <a href="index.html">👑 Owner Panel</a>
+            <a href="database.html">📊 Database Viewer</a>
+            <a href="keuntungan.html">💰 Keuntungan</a>
+            <a href="ceksewa.html">⏳ Cek Sewa</a> 
+            <a href="admin_settings.html">🎨 Customizer</a>
+        </div>
+    </div>
+
     <div id="confirmModal">
         <div class="modal-box">
-            <span class="modal-icon">🗑️</span>
+            <span style="font-size:40px; margin-bottom:15px; display:block;">🗑️</span>
             <h3>HAPUS LISENSI?</h3>
-            <p>Data yang dihapus tidak dapat dikembalikan. Yakin ingin melanjutkan?</p>
-            <div class="modal-btns">
-                <button class="m-btn btn-cancel" onclick="closeModal()">BATALKAN</button>
-                <button class="m-btn btn-confirm-del" id="realDeleteBtn">HAPUS</button>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0 25px;">Data tidak bisa dikembalikan.</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeModal()" style="flex:1; padding:14px; border-radius:18px; border:none; background:#2a2a2a; color:#fff; font-size:11px; font-weight:800;">BATAL</button>
+                <button id="realDeleteBtn" style="flex:1; padding:14px; border-radius:18px; border:none; background:#ff3131; color:#fff; font-size:11px; font-weight:800;">HAPUS</button>
             </div>
         </div>
     </div>
@@ -157,18 +181,15 @@
     <div class="header-section">
         <div class="panel-card">
             <div class="header">
-                <div>
-                    <div id="liveDate">LOADING...</div>
-                    <h2 id="formTitle">NEW LICENSE</h2>
-                </div>
-                <div class="clock-box"><div id="liveClock">00:00</div></div>
+                <div><div id="liveDate">LOADING...</div><h2 id="formTitle">NEW LICENSE</h2></div>
+                <div style="text-align:right;"><div id="liveClock">00:00</div></div>
             </div>
             <input type="hidden" id="editId">
-            <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="e.g. Namastore Client"></div>
-            <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="e.g. KEY-2026-X1"></div>
-            <div class="form-group"><label>Expiration Date & Time</label><input type="datetime-local" id="dateInput"></div>
+            <div class="form-group"><label>Member Name</label><input type="text" id="nameInput" placeholder="Nama Client"></div>
+            <div class="form-group"><label>Manual API Key</label><input type="text" id="apiInput" placeholder="KEY-2026-X1"></div>
+            <div class="form-group"><label>Expiration Date</label><input type="datetime-local" id="dateInput"></div>
             <button class="btn-main" id="saveBtn" onclick="saveData()">SAVE CONFIGURATION</button>
-            <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin-top:15px; cursor:pointer;">DISCARD CHANGES</button>
+            <button id="cancelBtn" onclick="resetForm()" style="display:none; width:100%; background:none; border:none; color:#555; font-size:10px; font-weight:800; margin:15px 0; cursor:pointer;">DISCARD CHANGES</button>
         </div>
         <div class="list-section-title">Active Licenses</div>
     </div>
@@ -206,24 +227,17 @@
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id];
                     const isExp = new Date() > new Date(item.expiry_date);
-                    const statusText = isExp ? "EXPIRED" : (item.status === 'active' ? "ACTIVE" : "LOCKED");
                     const statusClass = (item.status === 'active' && !isExp) ? "badge-active" : "badge-expired";
-
                     container.innerHTML += `
                         <div class="card-container" id="container-${id}">
                             <div class="lic-card" id="card-${id}">
-                                <div class="lic-header">
-                                    <div class="lic-name">${item.nama}</div>
-                                    <div class="badge ${statusClass}">${statusText}</div>
-                                </div>
-                                <code class="lic-key-row">> ${item.api_key}</code>
-                                <div class="lic-date">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
+                                <div class="lic-header"><div class="lic-name">${item.nama}</div><div class="badge ${statusClass}">${isExp ? "EXPIRED" : item.status.toUpperCase()}</div></div>
+                                <code style="font-size:11px; color:var(--p-color); margin-bottom:10px; display:block;">> ${item.api_key}</code>
+                                <div style="font-size:10px; color:var(--text-muted); font-weight:600;">Expires: ${new Date(item.expiry_date).toLocaleString('id-ID')}</div>
                                 <div class="action-grid">
                                     <button class="btn-act btn-edit" onclick="prepareEdit('${id}')">Edit</button>
                                     <button class="btn-act btn-del" onclick="openModal('${id}')">Delete</button>
-                                    <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">
-                                        ${item.status === 'active' ? 'ON' : 'OFF'}
-                                    </button>
+                                    <button class="btn-act btn-toggle ${item.status === 'active' ? 'active-btn' : ''}" onclick="toggleStatus('${id}', '${item.status}')">${item.status === 'active' ? 'ON' : 'OFF'}</button>
                                 </div>
                             </div>
                         </div>`;
@@ -231,31 +245,32 @@
             }
         }
 
-        // FUNGSI MODAL BARU BOS
-        function openModal(id) {
-            deleteTargetId = id;
-            document.getElementById('confirmModal').classList.add('show');
+        function toggleNav() {
+            const nav = document.getElementById('navOverlay');
+            const icon = document.getElementById('menuIcon');
+            if (nav.classList.contains('show')) {
+                nav.classList.remove('show');
+                setTimeout(() => nav.style.display = 'none', 400);
+                icon.innerText = '☰';
+            } else {
+                nav.style.display = 'flex';
+                setTimeout(() => nav.classList.add('show'), 10);
+                icon.innerText = '✕';
+            }
         }
 
-        function closeModal() {
-            document.getElementById('confirmModal').classList.remove('show');
-        }
+        function openModal(id) { deleteTargetId = id; document.getElementById('confirmModal').classList.add('show'); }
+        function closeModal() { document.getElementById('confirmModal').classList.remove('show'); }
 
         document.getElementById('realDeleteBtn').onclick = async function() {
             if(!deleteTargetId) return;
             const id = deleteTargetId;
             closeModal();
-            
             const card = document.getElementById(`card-${id}`);
             const container = document.getElementById(`container-${id}`);
-            
             card.classList.add('removing');
             setTimeout(() => { container.classList.add('collapsed'); }, 300);
-            setTimeout(async () => {
-                await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' });
-                fetchData();
-                deleteTargetId = null;
-            }, 800);
+            setTimeout(async () => { await fetch(`${FB_URL}/${id}.json`, { method: 'DELETE' }); fetchData(); deleteTargetId = null; }, 800);
         }
 
         async function saveData() {
@@ -264,11 +279,8 @@
             const date = document.getElementById('dateInput').value;
             const editId = document.getElementById('editId').value;
             if(!name || !key || !date) return;
-            const targetId = editId ? editId : key;
-            await fetch(`${FB_URL}/${targetId}.json`, { method: 'PUT', body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" }) });
-            showToast("DATA SAVED!");
-            resetForm();
-            fetchData();
+            await fetch(`${FB_URL}/${editId ? editId : key}.json`, { method: 'PUT', body: JSON.stringify({ nama: name, api_key: key, expiry_date: date, status: "active" }) });
+            showToast("DATA SAVED!"); resetForm(); fetchData();
         }
 
         async function toggleStatus(id, current) {
